@@ -32,8 +32,3 @@ while True:
                 continue
             elif otro_servicio == 'no':
                 break
-
-    clave_folio = max(folio.keys(), default = 0) + 1 
-    folio[clave_folio] = (nombre_cliente,servicio,fecha_actual)
-    print(folio)
-    break
