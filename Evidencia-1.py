@@ -1,12 +1,14 @@
+import datetime as dt
+
 print('----TALLER MECANICO DON HAMBLETON---')
 
 print('Buen dia, seleccione la opcion que desee realizar: \n1-Registrar nota \n2-Consulta y reportes')
 print('3-Cancelar una nota \n4-Recuperar una nota \n5-Salir')
 menu = int(input('Opcion: '))
 
-import datetime
-
 folio = {}
+
+fecha_actual=dt.date.today()
 
 while True:
     if menu == 1:
@@ -19,7 +21,14 @@ while True:
         print('4-Reparacion de motor: $4500 \n5-Trasmision: $3000')
         servicio = int(input('Servicio: '))
         
-    fecha_actual=datetime.date.today()
+        while True:
+            fecha_registro=input("Ingresar la fecha del sistema (dd/mm/aaaa): ")
+            fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
+            if fecha_procesada < fecha_actual:       
+                print("La fecha es incorrecta. La fecha no debe ser posterior a la actual")  
+                continue
+            else: 
+                break
 
     clave_folio = max(folio.keys(), default = 0) + 1 
     folio[clave_folio] = (nombre_cliente,servicio,fecha_actual)
