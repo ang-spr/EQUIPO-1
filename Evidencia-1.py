@@ -1,4 +1,5 @@
 import datetime as dt
+import random
 
 nota_final = {}
 tupla_servicio = {1:(600,'Cambio de nueomatico'), 2:(900,'Ajuste de vujias'),
@@ -12,6 +13,11 @@ while True:
     print('3-Cancelar una nota \n4-Recuperar una nota \n5-Salir')
     menu = int(input('Opcion: '))
     if menu == 1:
+        folio = random.randint(0,9999)
+        while folio in nota_final:
+            folio = random.randint(0,9999)
+            break
+        print(f'Folio: {folio}')
         nombre_cliente = input('Ingrese el nombre del cliente: \n')
         while True:
             fecha_registro=input("Ingresar la fecha del sistema (dd/mm/aaaa): ")
