@@ -27,6 +27,12 @@ while True:
             print('1-Cambio de neumaticos: $600 \n2-Ajuste de vujias: $900 \n3-Cambio de aceite: $850')
             print('4-Reparacion de motor: $4500 \n5-Trasmision: $3000')
             servicio = (input('Servicio: '))
+
+            costo_servicio = float(input("Ingrese el costo del servicio: "))
+            while costo_servicio <= 0:
+                print("El costo debe ser mayor que cero.")
+                costo_servicio = float(input("Ingrese el costo del servicio: "))
+                break
             otro_servicio = input('Desea otro servicio: (si/no) \n')
             if otro_servicio == 'si':
                 continue
