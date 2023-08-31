@@ -12,6 +12,8 @@ while True:
     print('3-Cancelar una nota \n4-Recuperar una nota \n5-Salir')
     menu = int(input('Opcion: '))
     if menu == 1:
+        nueva_nota = (max(nota_final.keys(), default = 0)) + 1
+        print(f'Folio: {nueva_nota}')
         nombre_cliente = input('Ingrese el nombre del cliente: \n')
         while True:
             fecha_registro=input("Ingresar la fecha del sistema (dd/mm/aaaa): ")
@@ -40,7 +42,5 @@ while True:
                 continue
             elif otro_servicio == 'no':
                 monto_pagar = print(f'El precio a pagar: ${total}')
-                nueva_nota = (max(nota_final.keys(), default = 0)) + 1
                 nota_final[nueva_nota]=(nombre_cliente,fecha_procesada,servicio,monto_pagar)
-                print(f'Folio: {nota_final.keys()}')
                 break
