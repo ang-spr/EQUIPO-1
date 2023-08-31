@@ -14,7 +14,6 @@ while True:
     if menu == 1:
         nueva_nota = (max(nota_final.keys(), default = 0)) + 1
         print(f'Folio: {nueva_nota}')
-        nombre_cliente = input('Ingrese el nombre del cliente: \n')
         while True:
             fecha_registro=input("Ingresar la fecha del sistema (dd/mm/aaaa): ")
             fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
@@ -24,13 +23,17 @@ while True:
                 continue
             else: 
                 break
-        
+
+        while True:
+            nombre_cliente = input('Ingrese el nombre del cliente: \n')
+            break
+            
         while True:
             print('Los servicios disponibles son los siguientes: ')
             print('1-Cambio de neumaticos: $600 \n2-Ajuste de vujias: $900 \n3-Cambio de aceite: $850')
             print('4-Reparacion de motor: $4500 \n5-Trasmision: $3000')
             servicio = (input('Servicio: '))
- 
+    
             costo_servicio = float(input("Ingrese el costo del servicio: "))
             if costo_servicio <= 0:
                 print("El costo debe ser mayor que cero.")
@@ -44,3 +47,4 @@ while True:
                 monto_pagar = print(f'El precio a pagar: ${total}')
                 nota_final[nueva_nota]=(nombre_cliente,fecha_procesada,servicio,monto_pagar)
                 break
+
