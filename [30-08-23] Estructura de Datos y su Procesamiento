@@ -1,0 +1,31 @@
+#LBYL       Look Before Your Leap.
+#Validad que si un string contiene número o también letras. Retorna un valor booleano.
+
+while True:
+    respuesta = input("Dime tu edad")
+    if respuesta.isdigit(): #Método para conocer si únicamente contiene números
+        edad = int(respuesta)
+        break
+    else:
+        print("Solamente se acepta dígitos numéricos")
+
+
+
+
+#EAFP     Easier Ask Forgiveness than Permission
+#try sirve para ejecutar un código que puede tener errores y en caso de que esto suceda
+#Se terminará la ejecución hasta la última línea correcta
+#except Exception se ejecutará en caso de que realmente haya un error.
+while True:
+    try:
+        edad = int(input("Dime tu edad: "))
+        break
+    except Exception:
+        print("Solamente se acepta dígitos")
+    else: #Se ejecutará solo si en toda las líneas de try se ejecutaron correctamente
+        print(f"El doble de tu edad es: {edad*2}")
+    finally: #Se ejecutará independientemente si se completó el try o el except
+        print("Esto siempre se ejecuta")
+    
+    #except ValueError: #Sirve para evaluar errores específicos
+    #except Exception: #Sirve para evaluar todos los errores
