@@ -123,24 +123,28 @@ while True:
             
             notas_periodo=[]
             for nueva_nota,nota in nota_final.items():
-                fecha_nota=nota["fecha"]
+                fecha_nota=nota[1]
                 if fecha_inicial <= fecha_nota <= fecha_fin:
                     notas_periodo.append((nota_final, nota))
 
             if notas_periodo:
-                print("Notas en el período seleccionado:")
-                for nota_final, nota in notas_periodo:
-                    print(f"Folio: {nota_final}, Fecha: {nota['fecha']}, Cliente: {nota['cliente']}, Monto a pagar: {nota['monto']}")
+                print("\nNotas en el período seleccionado:")
+                print("{:<10} {:<12} {:<20} {:<15}".format("Folio", "Fecha", "Cliente", "Monto a pagar"))
+
+                for nueva_nota, nota in notas_periodo:
+                    print("{:<10} {:<12} {:<20} {:<15}".format(nueva_nota, nota[1], nota[0], nota[3]))
+                    #otra posible solucion: print(f"Folio: {nueva_nota}, Fecha: {nota[1]}, Cliente: {nota[0]}, Monto a pagar: {nota[3]}")
+
             else:
                 print("No hay notas emitidas para el período especificado")
 
         
         else:
             print("*** Consulta por folio ***")
-            folio=input("Ingresa el folio del cual desea consultar información: ")
+            folio=int(input("Ingresa el folio del cual desea consultar información: "))
             if folio in nota_final: #o folio in nueva_nota,,,
-                print(f"Folio: {nueva_nota}, Fecha: {fecha_procesada}, Cliente: {nombre_cliente}, Monto a pagar: {total_costo_servicio}")
-                #print(f"Folio: {nota_final}, Fecha: {nota['fecha']}, Cliente: {nota['cliente']}, Monto a pagar: {nota['monto']}")
+                nota=nota_final[folio]
+                print(f"Folio: {nueva_nota}, Fecha: {nota[1]}, Cliente: {nota[0]}, Monto a pagar: {nota[3]}")
     
             else:
                 print(f"El folio {nueva_nota} no se encuentra en el sistema")    
@@ -156,5 +160,10 @@ while True:
         break
 
     #Salir:
-    else:
-        break
+    elif menu==5:
+        print("Confirma (1) si deseas salir del sistema o (2) si deseas continuar en el sistema")
+        salir=int(input("¿Desea salir del sistema? "))
+        if salir==1:
+            break 
+        else:
+            print("Saliste del sistema")
