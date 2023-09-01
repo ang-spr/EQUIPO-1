@@ -1,0 +1,88 @@
+
+
+#LISTAS
+lista = [10, 20, 30]
+lista2 = lista
+#Aunque lista2 pareciera que copia los valores actuales de lista,
+#lo que realmente hace es copiar en tiempo real a lista
+
+lista.append(1000) #append agrega otro dato a la lista, en la última posición
+#--------------print(lista2) #Imprimirá [10, 20, 30, 1000]
+
+#id retorna la ubicación de memoria en donde se almacenó en memoria un objeto
+#--------------print(id(lista))
+
+#Para copiar una lista se utiliza .copy()
+copia1 = lista.copy()
+
+#También se puede utlizar list()
+copia2 = list(lista)
+
+#Tercera manera es lista[:]
+#Los dos puntos pasan, en este caso, desde la primera y última posición de la lista, por ende guarda
+#todas las posiciones de la lista.
+copia3 = lista[:]
+
+print(f"{lista} ID de lista original: \t {id(lista)}") #Estarán en diferentes posiciones de memoria
+print(f"{lista2} ID de lista2: \t\t {id(lista2)}") #Es la misma lista original con diferente nombre 
+print (f"{copia1} ID de copia1: \t\t {id(copia1)}") #Las tres copias tendrán diferentes espacios de memoria
+print (f"{copia2} ID de copia2: \t\t {id(copia2)}")
+print (f"{copia3} ID de copia3: \t\t {id(copia3)}")
+
+
+
+
+
+
+
+#DICCIONARIOS {}
+#Cada elemento va tener su propio clave:valor
+#diccionario = {10:"hola"}  <------ En este diccionario tiene solo un elemento
+
+#Se puede agregar una tupla dentro de un diccionario:
+#100:(4, 8, 7, "R")
+#Se pueden agregar tuplas y diccionarios dentro de un diccionario.
+
+
+datos = {10:"Hola ", 11:"Mundo", 20:" :)"}
+print(datos) #Lo imprime desordenado.
+print(datos[80]) #En ocasiones se hace de esta manera pero si se escribe una clave que no existe truena.
+print(datos.get(50, "NO EXISTE")) #Método para mostrar una clave y en caso de que no exista muestra una alternativa.
+
+print(datos.keys()) #Muestra las claves dentro del diccionario
+print(datos.values()) #Muestra solamente los valores de las claves de un diccionario.
+
+
+ #PRÁCTICA
+#Codifique un programa que solicite al usuario un conjunto de datos de contacto consistentes
+#en nombre y teléfono de cada uno de los contactos, almancene dichos en memoria asignándole de manera
+#automática a cada contacto una clave diferente.
+#Defina usted la manera en que el usuario le indicará que ha concluido con la captura de datos.
+#Al concluir dicha captura presente usted un reporte tabular de los datos de los contactos que incluyan
+#la clave asignada
+
+i = 1
+diccionario = {}
+
+#numUsuario = 1     ANTERIOR VERSIÓN
+while i == 1:
+    nombre = input("Ingrese su nombre:\t")
+    nombre = nombre #Elimina espacios vacíos al principio y al final de la cadena.
+    telefono = int(input("Ingrese su teléfono:\t")) #No importa dejarlos como textos.
+    tuplaActual = (nombre, telefono)
+
+    #numUsuario += 1    VERSIÓN ANTERIOR
+    claveUsuario = max(diccionario.keys(), default = 0) + 1
+    #max() obtiene el número más alto y keys obtiene la clave del diccionario
+    #default es el número que tendría por defecto
+
+    diccionario[claveUsuario] = tuplaActual
+    print("--------------------------------------------------")
+    i = int(input("1 para ingresar otro contacto\n0 para salir:\n"))
+
+print(diccionario)
+
+#Diccionario encuentra más rápido los datos
+
+#Inicializar un contador podría duplicar las claves de un elemento de un diccionario, por ende podría
+#borrar datos.
