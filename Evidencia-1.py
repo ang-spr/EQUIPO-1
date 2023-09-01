@@ -48,3 +48,6 @@ while True:
                 nota_final[nueva_nota]=(nombre_cliente,fecha_procesada,servicio,monto_pagar)
                 break
 
+    print(nota_final)
+            
+
