@@ -1,0 +1,72 @@
+#Colas (Filas).
+#Queves.
+#FIFO -> First In First Out.
+#Al proceso de introducir datos se le llama Encolar -> Queves.
+#Al proceso de expulsar datos se le llama Desencolar -> 
+#Leer el primer elemento no es lo mismo que desencolar.
+#En la cafetería atienden a la primer persona que llegó, eso son las colas.
+
+
+
+#Pilas (Stacks).
+#Se refiere a apilar, se utilizan como cajas.
+#LIFO -> Last In First Out
+#Ejemplo: En Chrome es cuando retrocedes y te lleva a la página anterior de la que estuviste.
+
+cola = list() #Cola utilizando una lista
+for cantida in range(5):
+    nuevo = input("Nombre del recién llegado: ")
+    cola.append(nuevo)
+
+print(f"Se agregaron {len(cola)} encolados")
+
+#Hacer notar que los elementos permanencen en la cola
+print(f"Actualmente hay {len(cola)} encolados.\n Las cuales son: {cola}")
+
+#Quita la primera posición de la fila.
+#Siempre debe ir 0 para que elimine el primero.
+cola.pop(0)
+
+
+
+
+
+
+
+
+
+#QUITAR ENCOLADOS EN COLAS Y PILAS
+#Quitar encolados de una cola
+while cola:
+    cola.pop(0)
+print(len(cola))
+
+#ASÍ NO SE DEBE HACER:
+#No se puede usar for para .pop por que el for recorre su rango, pero .pop hace que 
+#también cambien las posiciones.
+for nombre in int(len(cola)):
+    print(cola.pop(0))
+print(len(cola))
+
+
+#Para desencolar tambien se puede usar deq
+import collections
+
+#Si utilizas deq en una cola, se utiliza .popleft() para desencolar
+#Se escribe izquierda solo por costumbre.
+while cola:
+    print(cola.popleft())
+
+#Es mejor utilizar colas y no listas cuando son muchos datos.
+#Deq solo borra el último, mientras que las listas tiene que cambiarles posiciones
+#A todos
+
+
+
+
+
+
+#Quitar encolados en una pila
+#Se utiliza de igual manera que cola.pop(0), pero cambia a:
+pila_con_lista = list()
+print(pila_con_lista.pop())
