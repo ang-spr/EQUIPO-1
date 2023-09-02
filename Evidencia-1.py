@@ -7,11 +7,11 @@ from tabulate import tabulate
 def limpiar_consola():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def menuActual(numeroMenu, descripcionMenu):
-    print(f"Usted se encuentra en:\nOpción {numeroMenu}: {descripcionMenu}")
+def guiones(longitud):
+    return '-' * longitud
 
-#Recolección de datos:
-fecha_actual = dt.date.today()
+def menuActual(numeroMenu, descripcionMenu):
+    print(f"Usted se encuentra en la opción {numeroMenu}:\n{guiones(10)}{descripcionMenu.upper()}{guiones(10)}")
 
 lista_menu = [('Número de opción', 'Servicio'),
               (1, 'Registrar nota.'),
@@ -27,13 +27,14 @@ lista_servicios = [('Número de servicio', 'Servicio', 'Precio sugerido'),
                    (4, 'Reparación de aceite', 4500),
                    (5, 'Trasmisión', 3000)]
 
-#Juntar datos:
+#Recolección de datos:
+fecha_actual = dt.date.today()
 nota_final = {}
 
 while True:
     #Menú principal:
     print('----TALLER MECÁNICO DON HAMBLETON----')
-    print('Buen día, seleccione la opción que desee realizar:')
+    print('Buen día, ingrese el número de la opción que desee realizar:')
     print(tabulate(lista_menu, headers = 'firstrow', tablefmt = 'pretty'))
     
     while True:
@@ -61,33 +62,49 @@ while True:
         #Fecha:
         while True:
             fecha_registro = input("Ingrese la fecha de la realización de la nota (dd/mm/aaaa): ")
-            fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
 
-            #CAMBIAR LA VALICACIÓN DE FECHA:
-            if fecha_procesada > fecha_actual:       
-                print("La fecha no debe ser posterior a la fecha Actual. Ingrese una fecha válida.")
-                continue
-            else: 
+            try:
+                fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
+                if fecha_procesada > fecha_actual:
+                    print("\nLa fecha no debe ser posterior a la fecha actual. Ingrese una fecha válida.")
+                    continue
                 break
+            except ValueError:
+                print("\nIngrese una fecha válida en formato dd/mm/aaaa.")
 
         #Nombre del cliente:
         while True:
-            nombre_cliente = input('Ingrese el nombre completo del cliente: ')
-            #VALIDAR:
-            #MAYOR A 2 DÍGITOS Y MENOR QUE 50.
-            #NO INGRESAR NÚMERO NI CARÁCTERES ESPECIALES.
-            #QUITAR ESPACIOS VACÍOS AL PRINCIPIO Y FINAL DEL TEXTO.
+            nombre_cliente = input('\nIngrese el nombre completo del cliente: ')
 
-            #CONVERTIRLO A MAYÚSCULAS PARA FACILITAR USO.
+            if len(nombre_cliente) < 5 or len(nombre_cliente) > 50:
+                print("El nombre completo debe tener entre 5 y 50 caracteres.")
+                continue
+
+            if not nombre_cliente.replace(' ', '').isalpha():
+                print("El nombre solo debe contener letras y espacios.")
+                continue
+            
+            nombre_cliente = nombre_cliente.strip()
+            nombre_cliente = nombre_cliente.upper()
             break
-
+        
         #Servicios realizados:
         while True:
             print('Ingrese el número de servicio que desee: ')
             print(tabulate(lista_servicios, headers = 'firstrow', tablefmt = 'pretty'))
-            servicio = int(input('Servicio: '))
-            #VALIDAR QUE INGRESE UN NÚMERO VÁLIDO.
 
+            while True:
+                try:
+                    servicio = int(input('Servicio: '))
+                    if servicio >= 1 and servicio <= 5:
+                        break
+                    else:
+                        print("\nIngrese una opción válida del 1 al 5.")
+                        continue
+                except ValueError:
+                    print("\nIngrese un número válido.")
+                    continue
+            
             costo_servicio = float(input("Ingrese el costo real del servicio: "))
             #VALIDAR QUE INGRESE UN COSTO VÁLIDO.
 
