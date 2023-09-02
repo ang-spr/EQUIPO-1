@@ -1,19 +1,31 @@
 #Librerías:
 import datetime as dt
 import os
+from tabulate import tabulate
 
 #Funciones
 def limpiar_consola():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-#[CÓDIGO POSIBLE A UTILIZAR]:
-'''
-tupla_servicio = {1:(600,'Cambio de nueomatico'), 2:(900,'Ajuste de vujias'),
-        3:(850,'Cambio de aceite'), 4:(4500,'Reparacion de aceite'), 5:(3000,'Trasmision')}
-'''
+def menuActual(numeroMenu, descripcionMenu):
+    print(f"Usted se encuentra en:\nOpción {numeroMenu}: {descripcionMenu}")
 
 #Recolección de datos:
 fecha_actual = dt.date.today()
+
+lista_menu = [('Número de opción', 'Servicio'),
+              (1, 'Registrar nota.'),
+              (2, 'Consulta y reportes.'),
+              (3, 'Cancelar una nota'),
+              (4, 'Recuperar una nota'),
+              (5, 'Salir')]
+
+lista_servicios = [('Número de servicio', 'Servicio', 'Precio sugerido'),
+                   (1, 'Cambio de nueomatico', 600), 
+                   (2, 'Ajuste de vujias', 900),
+                   (3, 'Cambio de aceite', 850),
+                   (4, 'Reparación de aceite', 4500),
+                   (5, 'Trasmisión', 3000)]
 
 #Juntar datos:
 nota_final = {}
@@ -22,26 +34,38 @@ while True:
     #Menú principal:
     print('----TALLER MECÁNICO DON HAMBLETON----')
     print('Buen día, seleccione la opción que desee realizar:')
-    print('\n1. Registrar nota.\n2. Consulta y reportes.\n3. Cancelar una nota.\n4. Recuperar una nota.\n5. Salir.')
-    #VALIDAR QUE INGRESE UNA OPCIÓN VÁLIDA.
-    menu = int(input('Opción: '))
+    print(tabulate(lista_menu, headers = 'firstrow', tablefmt = 'pretty'))
+    
+    while True:
+        try:
+            menu = int(input('Opción: '))
+            if menu >= 1 and menu <= 5:
+                break
+            else:
+                print("\nPor favor, ingrese una opción válida del 1 al 5.")
+                continue
+        except ValueError:
+            print("\nPor favor, ingrese un número válido.")
+            continue
 
     #Registrar nota:
     if menu == 1:
+        total_costo_servicio = 0
+        limpiar_consola()
+        menuActual(menu, lista_menu[menu][1])
+        
         #Folio:
         nueva_nota = (max(nota_final.keys(), default = 0)) + 1
-        print(f'\n\nNúmero de folio: {nueva_nota}')
+        print(f'\nNúmero de folio: {nueva_nota}')
 
         #Fecha:
         while True:
             fecha_registro = input("Ingrese la fecha de la realización de la nota (dd/mm/aaaa): ")
-
-            #CORREGIR EL PROCESAMIENTO DE LA FECHA:
             fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
 
             #CAMBIAR LA VALICACIÓN DE FECHA:
-            if fecha_procesada < fecha_actual:       
-                print("La fecha es incorrecta. La fecha no debe ser posterior a la actual.")
+            if fecha_procesada > fecha_actual:       
+                print("La fecha no debe ser posterior a la fecha Actual. Ingrese una fecha válida.")
                 continue
             else: 
                 break
@@ -57,11 +81,10 @@ while True:
             #CONVERTIRLO A MAYÚSCULAS PARA FACILITAR USO.
             break
 
-        #Servicio(s) realizado(s):
-        total_costo_servicio = 0
+        #Servicios realizados:
         while True:
-            print('Los servicios disponibles son los siguientes: ')
-            print('1. Cambio de neumáticos: $600\n2. Ajuste de vujias: $900\n3. Cambio de aceite: $850\n4. Reparación de motor: $4500\n5. Transmisión: $3000')
+            print('Ingrese el número de servicio que desee: ')
+            print(tabulate(lista_servicios, headers = 'firstrow', tablefmt = 'pretty'))
             servicio = int(input('Servicio: '))
             #VALIDAR QUE INGRESE UN NÚMERO VÁLIDO.
 
@@ -83,23 +106,22 @@ while True:
 
             #VALIDAR QUE INGRESE UNA RESPUESTA CORRECTA.
 
-            if otro_servicio == 'SI':             
+            total_costo_servicio += costo_servicio
+
+            if otro_servicio == 'SI':
                 #GUARDAR SERVICIO Y PRECIO ACTUAL A TUPLA QUE TENGA TODOS LOS SERVICIOS REALIZADOS.
-                
-                total_costo_servicio += costo_servicio
                 limpiar_consola()
+                print("{Aquí va ir el número de servicio} servicio guardado correctamente.\nIngrese el siguiente servicio:\n\n")
                 continue
             
             elif otro_servicio == 'NO':
-                monto_pagar = print(f'El precio a pagar es: ${total_costo_servicio}')
-
-                #AQUÍ CREO QUE GUARDAREMOS DICCIONARIO.
                 #IMPRIMIR FECHA SIN EL TIPO DE DATO QUE ES.
-                nota_final[nueva_nota]=(nombre_cliente, fecha_procesada, servicio, monto_pagar)
+                nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, total_costo_servicio)
 
-                #FALTA ENCONTRAR MANERA PARA DAR ENTER Y SALIR.
-                print(f"Nota guardada correctamente:\n{nota_final}\nDe clic en Enter para continuar.")
-                #limpiar_consola()
+                print(f"Nota guardada correctamente.\nEl precio a pagar es: ${total_costo_servicio}\n")
+                print(f"{nueva_nota} {nota_final[nueva_nota]}\n")
+                input("De clic en Enter para continuar.")
+                limpiar_consola()
                 break
 
     #Consulta y reportes:
