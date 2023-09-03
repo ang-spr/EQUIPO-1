@@ -1,18 +1,32 @@
-#Librerías:
-import datetime as dt
-import os
-from tabulate import tabulate
+#Módulos:
+import datetime as dt           # Módulo para utilizar formato fechas.
+import os                       # Módulo para limpiar pantalla
+from tabulate import tabulate   # Módulo para dar formato tabular.
+                                # Si marca error es necesario ejecutar en el símbolo de sistema la siguiente línea: pip install tabulate
+import re                       # Módulo para expresiones regulares.
+                                # Lo utilizamos para saber si el texto ingresado tenía decimales
+import unicodedata              # Módulo para eliminar acentos y caracteres especiales.
 
-#Funciones
+#Funciones:
 def limpiar_consola():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def guiones(longitud):
     return '-' * longitud
 
+def respuesta_SI_NO(procesar_SI_NO):
+    procesar_SI_NO = procesar_SI_NO.strip()
+    procesar_SI_NO = procesar_SI_NO.upper()
+    procesar_SI_NO = ''.join((c for c in unicodedata.normalize('NFD', procesar_SI_NO) if unicodedata.category(c) != 'Mn'))
+    return procesar_SI_NO
+
 def menuActual(numeroMenu, descripcionMenu):
     print(f"Usted se encuentra en la opción {numeroMenu}:\n{guiones(10)}{descripcionMenu.upper()}{guiones(10)}")
 
+def guiones_separadores():
+    return print('-' * 50)
+
+#Listas:
 lista_menu = [('Número de opción', 'Servicio'),
               (1, 'Registrar nota.'),
               (2, 'Consulta y reportes.'),
@@ -33,35 +47,38 @@ nota_final = {}
 
 while True:
     #Menú principal:
-    print('----TALLER MECÁNICO DON HAMBLETON----')
+    print(f'{guiones(20)}TALLER MECÁNICO DON HAMBLETON{guiones(20)}')
     print('Buen día, ingrese el número de la opción que desee realizar:')
     print(tabulate(lista_menu, headers = 'firstrow', tablefmt = 'pretty'))
-    
+
     while True:
         try:
             menu = int(input('Opción: '))
             if menu >= 1 and menu <= 5:
                 break
             else:
-                print("\nPor favor, ingrese una opción válida del 1 al 5.")
+                print("\nIngrese una opción válida del 1 al 5.")
                 continue
         except ValueError:
-            print("\nPor favor, ingrese un número válido.")
+            print("\nIngrese un número válido.")
             continue
 
     #Registrar nota:
+    total_precio_servicio = 0.00
     if menu == 1:
-        total_costo_servicio = 0
+        numero_servicio = 0
         limpiar_consola()
         menuActual(menu, lista_menu[menu][1])
         
         #Folio:
         nueva_nota = (max(nota_final.keys(), default = 0)) + 1
-        print(f'\nNúmero de folio: {nueva_nota}')
+        print(f'\nNúmero de folio creado: {nueva_nota}')
+        guiones_separadores()
 
         #Fecha:
         while True:
             fecha_registro = input("Ingrese la fecha de la realización de la nota (dd/mm/aaaa): ")
+            fecha_registro = fecha_registro.strip()
 
             try:
                 fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
@@ -71,28 +88,33 @@ while True:
                 break
             except ValueError:
                 print("\nIngrese una fecha válida en formato dd/mm/aaaa.")
+        guiones_separadores()
 
         #Nombre del cliente:
         while True:
-            nombre_cliente = input('\nIngrese el nombre completo del cliente: ')
+            nombre_cliente = input('Ingrese el nombre completo del cliente: ')
 
             if len(nombre_cliente) < 5 or len(nombre_cliente) > 50:
-                print("El nombre completo debe tener entre 5 y 50 caracteres.")
+                print("\nEl nombre completo debe tener entre 5 y 50 caracteres.")
                 continue
 
             if not nombre_cliente.replace(' ', '').isalpha():
-                print("El nombre solo debe contener letras y espacios.")
+                print("\nEl nombre solo debe contener letras y espacios.")
                 continue
             
             nombre_cliente = nombre_cliente.strip()
             nombre_cliente = nombre_cliente.upper()
             break
-        
-        #Servicios realizados:
+        guiones_separadores()
+
+        #Servicios realizados:        
+        lista_total_productos_con_precios = [('Número de servicio', 'Descripción', 'Precio')]
         while True:
+            numero_servicio += 1
+            #Guardar un servicio:
+            #Servicio
             print('Ingrese el número de servicio que desee: ')
             print(tabulate(lista_servicios, headers = 'firstrow', tablefmt = 'pretty'))
-
             while True:
                 try:
                     servicio = int(input('Servicio: '))
@@ -104,40 +126,53 @@ while True:
                 except ValueError:
                     print("\nIngrese un número válido.")
                     continue
+            guiones_separadores()
+
+            #Precio
+            print("Ingrese el precio real del servicio (exactamente con dos decimales): ")                        
+            while True:
+                recibido_precio_servicio = input("Precio: ")
+                recibido_precio_servicio = recibido_precio_servicio.strip()
+                if re.match(r'^\d+\.\d{2}$', recibido_precio_servicio):
+                    precio_servicio = float(recibido_precio_servicio)
+                    break
+                else:
+                    print("\nIngrese un precio válido, exactamente con dos decimales.")
+                    continue
             
-            costo_servicio = float(input("Ingrese el costo real del servicio: "))
-            #VALIDAR QUE INGRESE UN COSTO VÁLIDO.
+            print(f"{guiones(50)}\nServicio agregado correctamente.")
 
-            #CAMBIAR LA VALICACIÓN DEL COSTO:
-            if costo_servicio <= 0:
-                print("El costo debe ser mayor que cero.")
-                continue
+            #Guardar todos los servicios y precios:
+            tupla_servicio_actual = (numero_servicio, lista_servicios[servicio][1], precio_servicio)
+            lista_total_productos_con_precios.append(tupla_servicio_actual)
+            total_precio_servicio += precio_servicio
 
-            print("----------------------------------------\nServicio agregado correctamente.")
-            otro_servicio = input('\tDesea ingresar otro servicio (Sí/No): ')
+            #Conocer si desea agregar más servicios y llevarlo a su elección:
+            print('\t¿Desea agregar otro servicio? (Sí/No)')
+            while True:
+                otro_servicio = input('\tRespuesta: ')
+                otro_servicio = respuesta_SI_NO(otro_servicio)
 
-            #CONVERTIR RESPUESTA:
-            #CONVERTIRLO A MAYÚSCULAS
-            #QUITAR ESPACIOS VACÍOS AL PRINCIPIO Y FINAL DEL TEXTO.
-            #QUITAR ACENTOS.
-
-            #VALIDAR QUE INGRESE UNA RESPUESTA CORRECTA.
-
-            total_costo_servicio += costo_servicio
-
+                if otro_servicio == 'SI' or otro_servicio == 'NO':
+                    break
+                else:
+                    print('\n\tIngrese una respuesta válida (Sí/No).')
+            
             if otro_servicio == 'SI':
-                #GUARDAR SERVICIO Y PRECIO ACTUAL A TUPLA QUE TENGA TODOS LOS SERVICIOS REALIZADOS.
                 limpiar_consola()
-                print("{Aquí va ir el número de servicio} servicio guardado correctamente.\nIngrese el siguiente servicio:\n\n")
+                print(f"{numero_servicio} servicio guardado correctamente.\n\n")
                 continue
-            
-            elif otro_servicio == 'NO':
-                #IMPRIMIR FECHA SIN EL TIPO DE DATO QUE ES.
-                nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, total_costo_servicio)
-
-                print(f"Nota guardada correctamente.\nEl precio a pagar es: ${total_costo_servicio}\n")
-                print(f"{nueva_nota} {nota_final[nueva_nota]}\n")
-                input("De clic en Enter para continuar.")
+            else:
+                limpiar_consola()
+                nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, total_precio_servicio)
+                #Nota:
+                print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
+                print(f"Información guardada de la nota: {nueva_nota}\n")
+                print(tabulate([(nueva_nota, nota_final[nueva_nota][0], nota_final[nueva_nota][1], nota_final[nueva_nota][2])],
+                               headers=['Folio', 'Fecha', 'Cliente', 'Monto a Pagar'], tablefmt='pretty'))
+                #Detalles de la nota:
+                print(f"\nDetalles de la nota:\n{tabulate(lista_total_productos_con_precios, headers = 'firstrow', tablefmt = 'pretty')}")
+                input(f"\n\nDe clic en Enter para continuar.")
                 limpiar_consola()
                 break
 
@@ -155,4 +190,19 @@ while True:
 
     #Salir:
     else:
-        break
+        print('¿Está seguro que desea salir? (Sí/No)')
+        salir = input("Respuesta: ")
+        salir = respuesta_SI_NO(salir)
+
+        while True:
+            if salir == 'SI' or salir == 'NO':
+                break
+            else:
+                print('\nIngrese una respuesta válida (Sí/No).')
+
+        if salir == 'SI':
+            print("Gracias por usar nuestro sistema, hasta la próxima.")
+            break
+        else:
+            limpiar_consola()
+            continue
