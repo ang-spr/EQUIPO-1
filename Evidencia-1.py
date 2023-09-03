@@ -44,6 +44,7 @@ lista_servicios = [('Número de servicio', 'Servicio', 'Precio sugerido'),
 #Recolección de datos:
 fecha_actual = dt.date.today()
 nota_final = {}
+notas_canceladas = []
 
 while True:
     #Menú principal:
@@ -265,11 +266,114 @@ while True:
     
     #Cancelar una nota:
     elif menu == 3:
-        break
+        limpiar_consola()
+        menuActual(menu, lista_menu[menu][1])
+
+        #Solicitar nota:
+        print("Ingrese el folio de la nota a cancelar.")
+        while True:
+            try:
+                folio_eliminar = int(input("Respuesta: "))
+                break
+            except ValueError:
+                print("\nIngrese un número válido para el folio.")
+        guiones_separadores()
+
+        #Buscar nota:
+        if folio_eliminar in nota_final:
+            nota = nota_final[folio_eliminar]
+
+            #Mostrar datos antes de eliminar:
+            print("Los elementos de la nota son:")
+            print(f"Folio: {folio_eliminar}")
+            print(f"Fecha: {nota[0].strftime('%d/%m/%Y')}")
+            print(f"Cliente: {nota[1]}")
+            print(f"Monto a pagar: {nota[2]}")
+            guiones_separadores()
+
+            #Confirmación de eliminar nota:
+            print("¿Está seguro que desea cancelar la nota? (Sí/No): ")
+            while True:
+                respuesta = input('Respuesta: ')
+                respuesta = respuesta_SI_NO(respuesta)
+                if respuesta == 'SI' or respuesta == 'NO':
+                    break
+                else:
+                    print('\n\tIngrese una respuesta válida (Sí/No).')
+            guiones_separadores()
+
+            if respuesta == "SI":
+                #Eliminar la nota
+                notas_canceladas.append((folio_eliminar, nota_final[folio_eliminar]))
+                del nota_final[folio_eliminar]
+                print(f"La nota con el folio {folio_eliminar} ha sido cancelada correctamente.")
+            else:
+                print("Entendido. La nota no ha sido cancelada.")
+        else:
+            print(f"El folio {folio_eliminar} que ingresó no se encuentra en el sistema o ya ha sido cancelado.")
+        input("\nPresione Enter para continuar.")
+        limpiar_consola()
+        continue
 
     #Recuperar una nota
     elif menu == 4:
-        break
+        limpiar_consola()
+        menuActual(menu, lista_menu[menu][1])
+
+        if notas_canceladas:
+            print("Notas canceladas:")
+            print(tabulate(notas_canceladas, headers=["Folio", "Detalles"], tablefmt='pretty'))
+            
+            #Solicitar el folio:
+            print("Ingrese el folio de la nota que desea recuperar o 0 para salir: ")
+            while True:
+                try:
+                    folio_recuperar = int(input("Folio: "))
+                    if folio_recuperar == 0:
+                        break
+                    elif any(folio == folio_recuperar for folio, _ in notas_canceladas):
+                        #Buscar en las notas canceladas
+                        nota = next((nota for folio, nota in notas_canceladas if folio == folio_recuperar), None)
+
+                        #Mostrar nota antes de recuperar:
+                        print("Los elementos de la nota son:")
+                        print(f"Folio: {folio_recuperar}")
+                        print(f"Fecha: {nota[0].strftime('%d/%m/%Y')}")
+                        print(f"Cliente: {nota[1]}")
+                        print(f"Monto a pagar: {nota[2]}")
+                        guiones_separadores()
+
+                        #Confirmar de recuperar nota:
+                        print("¿Está seguro que desea recuperar la nota? (Sí/No): ")
+                        while True:
+                            respuesta = input('Respuesta: ')
+                            respuesta = respuesta_SI_NO(respuesta)
+                            if respuesta == 'SI' or respuesta == 'NO':
+                                break
+                            else:
+                                print('\n\tIngrese una respuesta válida (Sí/No).')
+                        guiones_separadores()
+
+                        if respuesta == "SI":
+                            #Recuperar la nota
+                            nota_final[folio_recuperar] = nota
+                            notas_canceladas.remove((folio_recuperar, nota))
+                            print(f"La nota con el folio {folio_recuperar} ha sido recuperada correctamente.")
+                            break
+                        else:
+                            print("Entendido. La nota no ha sido recuperada.")
+                            break
+                    else:
+                        print(f"El folio {folio_recuperar} que ingresó no es válido o ya ha sido recuperado.")
+                        break
+                except ValueError:
+                    print("\nIngrese un número válido para el folio.")
+        else:
+            guiones_separadores()
+            print("No hay notas canceladas para recuperar.")  
+        input("\nPresione Enter para continuar.")
+        limpiar_consola()
+        continue
 
     #Salir:
     else:
