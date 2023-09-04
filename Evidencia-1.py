@@ -163,23 +163,32 @@ while True:
             print(f"Fecha: {nota[1]}")
             print(f"Cliente: {nota[0]}")
             print(f"Monto a pagar: {nota[3]}")
-            respuesta = input("Esta seguro que desea eliminar la nota? (SI/NO): ").strip().upper()
 
-            if respuesta == "SI":
-              if folio_eliminar in nota_final:
+            print("¿Está seguro que desea cancelar la nota? (Sí/No): ")
+            while True:
+                respuesta = input('Respuesta: ')
+                respuesta = respuesta_SI_NO(respuesta)
+                if respuesta == 'SI' or respuesta == 'NO':
+                    break
+                else:
+                    print('\n\tIngrese una respuesta válida (Sí/No).')
+
+           if respuesta == "SI":
+                #Eliminar la nota
+                notas_canceladas.append((folio_eliminar, nota_final[folio_eliminar]))
                 del nota_final[folio_eliminar]
-                print(f"La nota con el folio {folio_eliminar} ha sido eliminada correctamente.")
+                print(f"La nota con el folio {folio_eliminar} ha sido cancelada correctamente.")
+            else:
+                print("Entendido. La nota no ha sido cancelada.")
 
             elif respuesta == "NO":
               print ("Entendido. Puede continuar")
               break
 
         else:
-          print(f"El folio {folio_eliminar} que ingreso no se encuentra en el sistema.")
-                      
-
-        print (f"Los registros que quedan son: ",nota_final)
-
+            print(f"El folio {folio_eliminar} que ingresó no se encuentra en el sistema o ya ha sido cancelado.")
+        input("\nPresione Enter para continuar.")
+        continue
 
     #Recuperar una nota
     elif menu == 4:
