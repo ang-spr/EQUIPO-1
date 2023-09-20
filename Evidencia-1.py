@@ -123,8 +123,6 @@ while True:
             break
         guiones_separadores()
 
-
-
         #Servicios realizados:        
         lista_total_productos_con_precios = [('Número de servicio', 'Descripción', 'Precio')]
         while True:
