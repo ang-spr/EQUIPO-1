@@ -34,17 +34,12 @@ lista_menu = [('Número de opción', 'Servicio'),
               (4, 'Recuperar una nota'),
               (5, 'Salir')]
 
-lista_servicios = [('Número de servicio', 'Servicio', 'Precio sugerido'),
-                   (1, 'Cambio de nueomatico', 600), 
-                   (2, 'Ajuste de vujias', 900),
-                   (3, 'Cambio de aceite', 850),
-                   (4, 'Reparación de aceite', 4500),
-                   (5, 'Trasmisión', 3000)]
 
 #Recolección de datos:
 fecha_actual = dt.date.today()
 nota_final = {}
 notas_canceladas = []
+lista_servicios = []
 
 while True:
     #Menú principal:
@@ -135,25 +130,19 @@ while True:
             break
         guiones_separadores()
 
-        #Servicios realizados:        
-        lista_total_productos_con_precios = [('Número de servicio', 'Descripción', 'Precio')]
+        #Servicios realizados        
         while True:
             numero_servicio += 1
             #Guardar un servicio:
             #Servicio
-            print('Ingrese el número de servicio que desee: ')
-            print(tabulate(lista_servicios, headers = 'firstrow', tablefmt = 'pretty'))
+            print('Ingrese el nombre del servicio')
             while True:
-                try:
-                    servicio = int(input('Servicio: '))
-                    if servicio >= 1 and servicio <= 5:
-                        break
-                    else:
-                        print("\nIngrese una opción válida del 1 al 5.")
-                        continue
-                except ValueError:
-                    print("\nIngrese un número válido.")
+                servicio = input('Servicio: ')
+                if servicio.strip() == '':
+                    print('El dato no puede omitirse. Intente de nuevo')
                     continue
+                else:
+                    break
             guiones_separadores()
 
             #Precio
@@ -171,8 +160,8 @@ while True:
             print(f"{guiones(50)}\nServicio agregado correctamente.")
 
             #Guardar todos los servicios y precios:
-            tupla_servicio_actual = (numero_servicio, lista_servicios[servicio][1], precio_servicio)
-            lista_total_productos_con_precios.append(tupla_servicio_actual)
+            tupla_servicio_actual = (servicio, precio_servicio)
+            lista_servicios.append(tupla_servicio_actual)
             total_precio_servicio += precio_servicio
 
             #Conocer si desea agregar más servicios y llevarlo a su elección:
@@ -200,7 +189,7 @@ while True:
                                 nota_final[nueva_nota][3], nota_final[nueva_nota][4])],
                                headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
-                print(f"\nDetalles de la nota:\n{tabulate(lista_total_productos_con_precios, headers = 'firstrow', tablefmt = 'pretty')}")
+                print(f"\nDetalles de la nota:\n{tabulate(lista_servicios, headers = ['Detalle', 'Precio'], tablefmt = 'pretty')}")
                 input(f"\n\nDe clic en Enter para continuar.")
                 limpiar_consola()
                 break
