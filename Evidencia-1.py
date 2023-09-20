@@ -44,6 +44,7 @@ lista_servicios = [('Número de servicio', 'Servicio', 'Precio sugerido'),
 #Recolección de datos:
 fecha_actual = dt.date.today()
 nota_final = {}
+notas_canceladas = []
 
 while True:
     #Menú principal:
@@ -107,6 +108,23 @@ while True:
             break
         guiones_separadores()
 
+        
+        #RFC
+        print('Ingrese el RFC del cliente: ')
+        while True:
+            rfc = input('RFC: ')
+            if rfc.strip() == '':
+                print('El dato no puede omitirse, intente de nuevo.')
+                continue
+
+            if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]$', rfc):
+                print('El RFC no cumple con el formato esperado.\nNombre(las iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
+                continue
+            break
+        guiones_separadores()
+
+
+
         #Servicios realizados:        
         lista_total_productos_con_precios = [('Número de servicio', 'Descripción', 'Precio')]
         while True:
@@ -168,40 +186,13 @@ while True:
                 #Nota:
                 print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
                 print(f"Información guardada de la nota: {nueva_nota}\n")
-                print(tabulate([(nueva_nota, nota_final[nueva_nota][0], nota_final[nueva_nota][1], nota_final[nueva_nota][2])],
+                print(tabulate([(nueva_nota, nota_final[nueva_nota][0].strftime("%d/%m/%Y"), nota_final[nueva_nota][1], nota_final[nueva_nota][2])],
                                headers=['Folio', 'Fecha', 'Cliente', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_total_productos_con_precios, headers = 'firstrow', tablefmt = 'pretty')}")
                 input(f"\n\nDe clic en Enter para continuar.")
                 limpiar_consola()
                 break
-
-    #Consulta y reportes:
-    elif menu == 2:
-        break
-    
-    #Cancelar una nota:
-    elif menu == 3:
-        break
-
-    #Recuperar una nota
-    elif menu == 4:
-        break
-
-    #Salir:
-    else:
-        print('¿Está seguro que desea salir? (Sí/No)')
-        salir = input("Respuesta: ")
-        salir = respuesta_SI_NO(salir)
-
-        while True:
-            if salir == 'SI' or salir == 'NO':
-                break
-            else:
-                print('\nIngrese una respuesta válida (Sí/No).')
-
-        if salir == 'SI':
-            print("Gracias por usar nuestro sistema, hasta la próxima.")
             break
         else:
             limpiar_consola()
