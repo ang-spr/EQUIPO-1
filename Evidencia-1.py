@@ -137,7 +137,7 @@ while True:
             #Servicio
             print('Ingrese el nombre del servicio')
             while True:
-                servicio = input('Servicio: ')
+                servicio = input('Servicio: ').upper()
                 if servicio.strip() == '':
                     print('El dato no puede omitirse. Intente de nuevo')
                     continue
@@ -178,18 +178,20 @@ while True:
             if otro_servicio == 'SI':
                 limpiar_consola()
                 print(f"{numero_servicio} servicio guardado correctamente.\n\n")
+                guiones_separadores()
                 continue
             else:
                 limpiar_consola()
-                nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, rfc, mail, total_precio_servicio)
+                nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, rfc, mail, lista_servicios, total_precio_servicio)
                 #Nota:
                 print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
                 print(f"Información guardada de la nota: {nueva_nota}\n")
                 print(tabulate([(nueva_nota, nota_final[nueva_nota][0].strftime("%d/%m/%Y"), nota_final[nueva_nota][1], nota_final[nueva_nota][2],
-                                nota_final[nueva_nota][3], nota_final[nueva_nota][4])],
-                               headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Monto a Pagar'], tablefmt='pretty'))
+                                nota_final[nueva_nota][3], nota_final[nueva_nota][4], nota_final[nueva_nota][5])],
+                               headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Detalle', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_servicios, headers = ['Detalle', 'Precio'], tablefmt = 'pretty')}")
                 input(f"\n\nDe clic en Enter para continuar.")
                 limpiar_consola()
                 break
+
