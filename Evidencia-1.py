@@ -110,7 +110,7 @@ while True:
 
         
         #RFC
-        print('Ingrese el RFC del cliente: ')
+        print('Ingrese el RFC del cliente. ')
         while True:
             rfc = input('RFC: ')
             if rfc.strip() == '':
@@ -118,6 +118,19 @@ while True:
                 continue
             if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
                 print('El RFC no cumple con el formato esperado.\nNombre(las iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
+                continue
+            break
+        guiones_separadores()
+
+        #Correo Electronico
+        print('Ingrese el correo electronico del cliente: ')
+        while True:
+            mail = input('Correo Electronico: ')
+            if mail.strip() == '':
+                print('El dato no puede omitirse. Intente de nuevo.')
+                continue
+            if not re.match(r'^(?=.{1,256}$)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',mail):
+                print('El correo no es valido. Intente de nuevo.')
                 continue
             break
         guiones_separadores()
@@ -179,12 +192,12 @@ while True:
                 continue
             else:
                 limpiar_consola()
-                nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, rfc, total_precio_servicio)
+                nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, rfc, mail, total_precio_servicio)
                 #Nota:
                 print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
                 print(f"Información guardada de la nota: {nueva_nota}\n")
                 print(tabulate([(nueva_nota, nota_final[nueva_nota][0].strftime("%d/%m/%Y"), nota_final[nueva_nota][1], nota_final[nueva_nota][2],
-                                nota_final[nueva_nota][3])],
+                                nota_final[nueva_nota][3], nota_final[nueva_nota][4])],
                                headers=['Folio', 'Fecha', 'Cliente','RFC', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_total_productos_con_precios, headers = 'firstrow', tablefmt = 'pretty')}")
