@@ -197,8 +197,8 @@ while True:
                 print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
                 print(f"Información guardada de la nota: {nueva_nota}\n")
                 print(tabulate([(nueva_nota, nota_final[nueva_nota][0].strftime("%d/%m/%Y"), nota_final[nueva_nota][1], nota_final[nueva_nota][2],
-                                nota_final[nueva_nota][3], nota_final[nueva_nota][4], nota_final[nueva_nota][5])],
-                               headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico' 'Monto a Pagar'], tablefmt='pretty'))
+                                nota_final[nueva_nota][3], nota_final[nueva_nota][4])],
+                               headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_total_productos_con_precios, headers = 'firstrow', tablefmt = 'pretty')}")
                 input(f"\n\nDe clic en Enter para continuar.")
