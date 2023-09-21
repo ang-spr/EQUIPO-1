@@ -104,15 +104,29 @@ while True:
 
         
         #RFC
-        print('Ingrese el RFC del cliente. ')
         while True:
-            rfc = input('RFC: ')
-            if rfc.strip() == '':
-                print('El dato no puede omitirse, intente de nuevo.')
-                continue
-            if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
-                print('El RFC no cumple con el formato esperado.\nNombre(las iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
-                continue
+            print('Tipo de RFC: \n1-Física \n2-Moral ')
+            tipo = int(input('Tipo: '))
+            guiones_separadores()
+            while True:
+                if tipo == 1:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(4 iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
+                        continue
+                    break
+                elif tipo == 2:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{3}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(3 iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
+                        continue
+                    break
             break
         guiones_separadores()
 
