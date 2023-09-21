@@ -34,7 +34,6 @@ lista_menu = [('Número de opción', 'Servicio'),
               (4, 'Recuperar una nota'),
               (5, 'Salir')]
 
-
 #Recolección de datos:
 fecha_actual = dt.date.today()
 nota_final = {}
@@ -105,15 +104,29 @@ while True:
 
         
         #RFC
-        print('Ingrese el RFC del cliente. ')
         while True:
-            rfc = input('RFC: ')
-            if rfc.strip() == '':
-                print('El dato no puede omitirse, intente de nuevo.')
-                continue
-            if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
-                print('El RFC no cumple con el formato esperado.\nNombre(las iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
-                continue
+            print('Tipo de RFC: \n1-Física \n2-Moral ')
+            tipo = int(input('Tipo: '))
+            guiones_separadores()
+            while True:
+                if tipo == 1:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(4 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
+                        continue
+                    break
+                elif tipo == 2:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{3}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(3 iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
+                        continue
+                    break
             break
         guiones_separadores()
 
@@ -187,12 +200,13 @@ while True:
                 print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
                 print(f"Información guardada de la nota: {nueva_nota}\n")
                 print(tabulate([(nueva_nota, nota_final[nueva_nota][0].strftime("%d/%m/%Y"), nota_final[nueva_nota][1], nota_final[nueva_nota][2],
-                                nota_final[nueva_nota][3], nota_final[nueva_nota][4], nota_final[nueva_nota][5])],
-                               headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Detalle', 'Monto a Pagar'], tablefmt='pretty'))
+                                nota_final[nueva_nota][3], nota_final[nueva_nota][5])],
+                               headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_servicios, headers = ['Detalle', 'Precio'], tablefmt = 'pretty')}")
                 input(f"\n\nDe clic en Enter para continuar.")
                 limpiar_consola()
+                lista_servicios = []
                 tupla_servicio_actual = ()
                 break
             else:
