@@ -104,41 +104,41 @@ while True:
 
         
         #RFC
-    while True:
-        print('Tipo de RFC: \n1-Física \n2-Moral ')
         while True:
-            try:
-                tipo = int(input('Tipo: '))
-                if tipo >= 1 and tipo <= 2:
+            print('Tipo de RFC: \n1-Física \n2-Moral ')
+            while True:
+                try:
+                    tipo = int(input('Tipo: '))
+                    if tipo >= 1 and tipo <= 2:
+                        break
+                    else:
+                        print("\nIngrese una opción válida del 1 al 2.")
+                        continue
+                except ValueError:
+                    print("\nIngrese un número válido.")
+                    continue  
+            guiones_separadores()
+            while True:
+                if tipo == 1:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(4 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
+                        continue
                     break
-                else:
-                    print("\nIngrese una opción válida del 1 al 2.")
-                    continue
-            except ValueError:
-                print("\nIngrese un número válido.")
-                continue  
+                elif tipo == 2:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{3}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(3 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
+                        continue
+                    break
+            break
         guiones_separadores()
-        while True:
-            if tipo == 1:
-                rfc = input('RFC: ')
-                if rfc.strip() == '':
-                    print('El dato no puede omitirse, intente de nuevo.')
-                    continue
-                if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
-                    print('El RFC no cumple con el formato esperado.\nNombre(4 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
-                    continue
-                break
-            elif tipo == 2:
-                rfc = input('RFC: ')
-                if rfc.strip() == '':
-                    print('El dato no puede omitirse, intente de nuevo.')
-                    continue
-                if not re.match(r'^[A-Z]{3}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
-                    print('El RFC no cumple con el formato esperado.\nNombre(3 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
-                    continue
-                break
-        break
-    guiones_separadores()
         #Correo Electronico
         print('Ingrese el correo electronico del cliente: ')
         while True:
@@ -187,7 +187,7 @@ while True:
             total_precio_servicio += precio_servicio
 
             #Conocer si desea agregar más servicios y llevarlo a su elección:
-            print('\t¿Desea agregar otro servicio? (Sí/No)')
+            print('\t¿DESEA AGREGAR OTRO SERVICIO? (Sí/No)')
             while True:
                 otro_servicio = input('\tRespuesta: ')
                 otro_servicio = respuesta_SI_NO(otro_servicio)
@@ -195,25 +195,25 @@ while True:
                 if otro_servicio == 'SI' or otro_servicio == 'NO':
                     break
                 else:
-                    print('\n\tIngrese una respuesta válida (Sí/No).')
+                    print('\n\t---INGRESE UNA OPCIÓN VÁLIDA (Sí/No).---')
             
             if otro_servicio == 'SI':
                 limpiar_consola()
-                print(f"{numero_servicio} servicio guardado correctamente.\n\n")
+                print(f"{numero_servicio} ---SERVICIO GUARDADO CORRECTAMENTE.---\n\n")
                 guiones_separadores()
                 continue
             else:
                 limpiar_consola()
                 nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, rfc, mail, lista_servicios, total_precio_servicio)
                 #Nota:
-                print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
+                print(f"{guiones(15)}NOTA GUARDADA CORRECTAMENTE{guiones(15)}")
                 print(f"Información guardada de la nota: {nueva_nota}\n")
                 print(tabulate([(nueva_nota, nota_final[nueva_nota][0].strftime("%d/%m/%Y"), nota_final[nueva_nota][1], nota_final[nueva_nota][2],
                                 nota_final[nueva_nota][3], nota_final[nueva_nota][5])],
                                headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_servicios, headers = ['Detalle', 'Precio'], tablefmt = 'pretty')}")
-                input(f"\n\nDe clic en Enter para continuar.")
+                input(f"\n\n---DE CLIC ENTER PARA CONTINUAR.---")
                 limpiar_consola()
                 lista_servicios = []
                 tupla_servicio_actual = ()
