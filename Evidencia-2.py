@@ -187,7 +187,7 @@ while True:
             total_precio_servicio += precio_servicio
 
             #Conocer si desea agregar más servicios y llevarlo a su elección:
-            print('\t¿DESEA AGREGAR OTRO SERVICIO? (Sí/No)')
+            print('\t¿Desea agregar otro servicio? (Sí/No)')
             while True:
                 otro_servicio = input('\tRespuesta: ')
                 otro_servicio = respuesta_SI_NO(otro_servicio)
@@ -195,25 +195,25 @@ while True:
                 if otro_servicio == 'SI' or otro_servicio == 'NO':
                     break
                 else:
-                    print('\n\t---INGRESE UNA OPCIÓN VÁLIDA (Sí/No).---')
+                    print('\n\tIngrese una respuesta válida (Sí/No).')
             
             if otro_servicio == 'SI':
                 limpiar_consola()
-                print(f"{numero_servicio} ---SERVICIO GUARDADO CORRECTAMENTE.---\n\n")
+                print(f"{numero_servicio} servicio guardado correctamente.\n\n")
                 guiones_separadores()
                 continue
             else:
                 limpiar_consola()
                 nota_final[nueva_nota]=(fecha_procesada, nombre_cliente, rfc, mail, lista_servicios, total_precio_servicio)
                 #Nota:
-                print(f"{guiones(15)}NOTA GUARDADA CORRECTAMENTE{guiones(15)}")
+                print(f"{guiones(15)}Nota guardada correctamente{guiones(15)}")
                 print(f"Información guardada de la nota: {nueva_nota}\n")
                 print(tabulate([(nueva_nota, nota_final[nueva_nota][0].strftime("%d/%m/%Y"), nota_final[nueva_nota][1], nota_final[nueva_nota][2],
                                 nota_final[nueva_nota][3], nota_final[nueva_nota][5])],
                                headers=['Folio', 'Fecha', 'Cliente','RFC', 'Correo Electronico', 'Monto a Pagar'], tablefmt='pretty'))
                 #Detalles de la nota:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_servicios, headers = ['Detalle', 'Precio'], tablefmt = 'pretty')}")
-                input(f"\n\n---DE CLIC ENTER PARA CONTINUAR.---")
+                input(f"\n\nDe clic en Enter para continuar.")
                 limpiar_consola()
                 lista_servicios = []
                 tupla_servicio_actual = ()
