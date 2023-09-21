@@ -115,7 +115,7 @@ while True:
                         print('El dato no puede omitirse, intente de nuevo.')
                         continue
                     if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
-                        print('El RFC no cumple con el formato esperado.\nNombre(4 iniciales) \nFecha de nacimiento(YY-MM-DD) \nHomoclave unica')
+                        print('El RFC no cumple con el formato esperado.\nNombre(4 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
                         continue
                     break
                 elif tipo == 2:
@@ -206,5 +206,6 @@ while True:
                 print(f"\nDetalles de la nota:\n{tabulate(lista_servicios, headers = ['Detalle', 'Precio'], tablefmt = 'pretty')}")
                 input(f"\n\nDe clic en Enter para continuar.")
                 limpiar_consola()
+                lista_servicios = []
                 tupla_servicio_actual = ()
                 break
