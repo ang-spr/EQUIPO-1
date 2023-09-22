@@ -1,0 +1,57 @@
+#Consulta por cliente:
+            elif opcion == 3:
+                print(f"\n\n{guiones(10)}Consulta por cliente {guiones(10)}".upper())
+                
+                lista_rfc=set([nota[2] for nota in nota_final.values()])
+
+                #Mostrar rfc al usuario
+                print("Lista de RFC disponibles")
+                for i, rfc in enumerate(lista_rfc,start=1):
+                    print(f"{i}. {rfc}")
+
+                while True:
+                    try:
+                        elegir_folio_rfc=int(input("Ingrese el folio que se generó del RFC que deseas consultar: "))
+                        if 1>= elegir_folio_rfc<=len(lista_rfc):
+                            consulta_rfc=list(lista_rfc)[elegir_folio_rfc-1]
+
+                            #filtrar los folios asociados a los RFC
+                            folios_rfc=[folio for folio, nota in nota_final.items() if nota[2]==consulta_rfc]
+                            nuevo_folio=max(folios_rfc,default=0) + 1   #asegurar que los folios sean únicos
+                            
+                            print(f"\nNotas para el RFC {consulta_rfc}: ") #mostrar notas para RFC seleccionado
+                            notas_promedio=[]
+                            
+                            for folio in folios_rfc:
+                                nota=nota_final[folio]
+                                notas_promedio.append(nota[5]) #para calcular el monto promedio
+                                print(f"Folio: {folio}\nFecha: {nota[0].strftime ('%d/%m/%Y')}\nCliente: {nota[1]}\nMonto a pagar: {nota[5]}")
+                                print(f"\nDetalles de la nota:\n{tabulate(nota[4], headers = ['Detalle', 'Precio'], tablefmt = 'pretty')}")
+                                
+                            promedio=sum(notas_promedio)/len (notas_promedio) #calcular monto promedio
+                            print(f"Monto promedio de las notas para el RFC {consulta_rfc}: {promedio:.2f}")
+
+
+                            while True:
+                                try:
+                                    exportar_excel=int(input("¿Desea exportar esta información a un archivo Excel? (1: Sí, 2: No): "))
+                                    if exportar_excel==1:
+                                        print("Exportando a Excel...")
+                                        break
+                                    elif exportar_excel== 2:
+                                            break
+                                    else:
+                                        print("Ingrese una opción válida (1 o 2).")
+                                except ValueError:
+                                    print("Ingrese una opción válida (1 o 2).")
+                                else:
+                                    print(f"No hay notas para el RFC {rfc}.")
+                                    
+                        else:
+                            print(f"EL FOLIO {folio} NO SE ENCUENTRA EN EL SISTEMA.")
+                            break
+                        
+                    except ValueError:
+                        print("Ingrese un número de folio válido.")
+                        continue
+    
