@@ -8,15 +8,32 @@ import re                       # Módulo para expresiones regulares.
 import unicodedata              # Módulo para eliminar acentos y caracteres especiales.
 
 
-#Funciones
+#Funciones:
 def limpiar_consola():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-#[CÓDIGO POSIBLE A UTILIZAR]:
-'''
-tupla_servicio = {1:(600,'Cambio de nueomatico'), 2:(900,'Ajuste de vujias'),
-        3:(850,'Cambio de aceite'), 4:(4500,'Reparacion de aceite'), 5:(3000,'Trasmision')}
-'''
+def guiones(longitud):
+    return '-' * longitud
+
+def respuesta_SI_NO(procesar_SI_NO):
+    procesar_SI_NO = procesar_SI_NO.strip()
+    procesar_SI_NO = procesar_SI_NO.upper()
+    procesar_SI_NO = ''.join((c for c in unicodedata.normalize('NFD', procesar_SI_NO) if unicodedata.category(c) != 'Mn'))
+    return procesar_SI_NO
+
+def menuActual(numeroMenu, descripcionMenu):
+    print(f"Usted se encuentra en la opción {numeroMenu}:\n{guiones(10)}{descripcionMenu.upper()}{guiones(10)}")
+
+def guiones_separadores():
+    return print('-' * 50)
+
+#Listas:
+lista_menu = [('Número de opción', 'Servicio'),
+              (1, 'Registrar nota.'),
+              (2, 'Consulta y reportes.'),
+              (3, 'Cancelar una nota'),
+              (4, 'Recuperar una nota'),
+              (5, 'Salir')]
 
 #Recolección de datos:
 fecha_actual = dt.date.today()
