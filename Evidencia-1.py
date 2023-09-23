@@ -50,24 +50,31 @@ while True:
     menu = int(input('Opción: '))
 
     #Registrar nota:
+    total_precio_servicio = 0.00
     if menu == 1:
+        numero_servicio = 0
+        limpiar_consola()
+        menuActual(menu, lista_menu[menu][1])
+        
         #Folio:
         nueva_nota = (max(nota_final.keys(), default = 0)) + 1
-        print(f'\n\nNúmero de folio: {nueva_nota}')
+        print(f'\nNúmero de folio creado: {nueva_nota}')
+        guiones_separadores()
 
         #Fecha:
         while True:
             fecha_registro = input("Ingrese la fecha de la realización de la nota (dd/mm/aaaa): ")
+            fecha_registro = fecha_registro.strip()
 
-            #CORREGIR EL PROCESAMIENTO DE LA FECHA:
-            fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
-
-            #CAMBIAR LA VALICACIÓN DE FECHA:
-            if fecha_procesada < fecha_actual:       
-                print("La fecha es incorrecta. La fecha no debe ser posterior a la actual.")
-                continue
-            else: 
+            try:
+                fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
+                if fecha_procesada > fecha_actual:
+                    print("\nLa fecha no debe ser posterior a la fecha actual. Ingrese una fecha válida.")
+                    continue
                 break
+            except ValueError:
+                print("\nIngrese una fecha válida en formato dd/mm/aaaa.")
+        guiones_separadores()
 
         #Nombre del cliente:
         while True:
