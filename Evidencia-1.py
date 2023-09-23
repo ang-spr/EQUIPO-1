@@ -1,7 +1,12 @@
 #librerías:
 import datetime as dt
 import os
-import datetime #Fatima: puse este modulo para las fechas de la 2 opcion del menu
+from tabulate import tabulate   # Módulo para dar formato tabular.
+                                # Si marca error es necesario ejecutar en el símbolo de sistema la siguiente línea: pip install tabulate
+import re                       # Módulo para expresiones regulares.
+                                # Lo utilizamos para saber si el texto ingresado tenía decimales
+import unicodedata              # Módulo para eliminar acentos y caracteres especiales.
+
 
 #Funciones
 def limpiar_consola():
