@@ -76,16 +76,22 @@ while True:
                 print("\nIngrese una fecha válida en formato dd/mm/aaaa.")
         guiones_separadores()
 
-        #Nombre del cliente:
+       #Nombre del cliente:
         while True:
             nombre_cliente = input('Ingrese el nombre completo del cliente: ')
-            #VALIDAR:
-            #MAYOR A 2 DÍGITOS Y MENOR QUE 50.
-            #NO INGRESAR NÚMERO NI CARÁCTERES ESPECIALES.
-            #QUITAR ESPACIOS VACÍOS AL PRINCIPIO Y FINAL DEL TEXTO.
 
-            #CONVERTIRLO A MAYÚSCULAS PARA FACILITAR USO.
+            if len(nombre_cliente) < 5 or len(nombre_cliente) > 50:
+                print("\nEl nombre completo debe tener entre 5 y 50 caracteres.")
+                continue
+
+            if not nombre_cliente.replace(' ', '').isalpha():
+                print("\nEl nombre solo debe contener letras y espacios.")
+                continue
+            
+            nombre_cliente = nombre_cliente.strip()
+            nombre_cliente = nombre_cliente.upper()
             break
+        guiones_separadores()
 
         #Servicio(s) realizado(s):
         total_costo_servicio = 0
