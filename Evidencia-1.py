@@ -93,6 +93,43 @@ while True:
             break
         guiones_separadores()
 
+      #RFC
+        while True:
+            print('Tipo de RFC: \n1-Física \n2-Moral ')
+            while True:
+                try:
+                    tipo = int(input('Tipo: '))
+                    if tipo >= 1 and tipo <= 2:
+                        break
+                    else:
+                        print("\nIngrese una opción válida del 1 al 2.")
+                        continue
+                except ValueError:
+                    print("\nIngrese un número válido.")
+                    continue  
+            guiones_separadores()
+            while True:
+                if tipo == 1:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{4}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(4 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
+                        continue
+                    break
+                elif tipo == 2:
+                    rfc = input('RFC: ')
+                    if rfc.strip() == '':
+                        print('El dato no puede omitirse, intente de nuevo.')
+                        continue
+                    if not re.match(r'^[A-Z]{3}[0-9]{2}[0-9]{2}[0-9]{2}[A-Z0-9]{3}$', rfc):
+                        print('El RFC no cumple con el formato esperado.\nNombre(3 iniciales) \nFecha de nacimiento(YYMMDD) \nHomoclave unica')
+                        continue
+                    break
+            break
+        guiones_separadores()
+
         #Servicio(s) realizado(s):
         total_costo_servicio = 0
         while True:
