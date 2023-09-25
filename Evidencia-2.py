@@ -45,6 +45,43 @@ def validarContinuarOpcion(continuarOpcion):
     if continuarOpcion == "0":
         return True
 
+def guardarCSV():
+    data = []
+    for folio, nota in nota_final.items():
+        detalles = nota[4]  # Detalles es una lista de tuplas
+        for detalle in detalles:
+            data.append([folio, nota[0].strftime("%d/%m/%Y"), nota[1], nota[2], nota[3], detalle[0], detalle[1], nota[5]])
+
+    df = pd.DataFrame(data, columns=['Folio', 'Fecha', 'Cliente', 'RFC', 'Correo Electrónico', 'Detalle', 'Precio', 'Monto a Pagar'])
+    df.to_csv('programa.csv', index=False)
+
+nota_final = {} 
+
+def cargarCSV(nota_final):
+    try:
+        df = pd.read_csv('programa.csv')
+        for index, row in df.iterrows():
+            folio = int(row['Folio'])
+            fecha = dt.datetime.strptime(row['Fecha'], "%d/%m/%Y").date()
+            cliente = row['Cliente']
+            rfc = row['RFC']
+            correo = row['Correo Electrónico']
+            monto = float(row['Monto a Pagar'])
+            detalle_desc = row['Detalle']
+            detalle_precio = float(row['Precio'])
+
+            # Verificar si el folio existe en nota_final
+            if folio in nota_final:
+                detalles = nota_final[folio][4]
+                detalles.append((detalle_desc, detalle_precio))
+                nota_final[folio] = (fecha, cliente, rfc, correo, detalles, monto)
+            else:
+                nota_final[folio] = (fecha, cliente, rfc, correo, [(detalle_desc, detalle_precio)], monto)
+
+        print(f"\n{guiones(17)} Datos cargados exitosamente {guiones(17)}".upper())
+    except FileNotFoundError:
+        print(f"\n{guiones(17)} El archivo CSV no existe. Se creará uno nuevo al salir {guiones(17)}".upper())
+
 #Listas:
 lista_menu = [('Número de opción', 'Servicio'),
               (1, 'Registrar nota.'),
@@ -53,9 +90,10 @@ lista_menu = [('Número de opción', 'Servicio'),
               (4, 'Recuperar una nota.'),
               (5, 'Salir')]
 
+cargarCSV(nota_final) 
+
 #Recolección de datos:
 fecha_actual = dt.date.today()
-nota_final = {}
 notas_canceladas = []
 lista_servicios = []
 opcion = 0
@@ -541,18 +579,24 @@ while True:
     #Salir.
     else:
         print('¿Está seguro que desea salir? (Sí/No)')
-        salir = input("Respuesta: ")
-        salir = respuesta_SI_NO(salir)
 
         while True:
+            salir = input("Respuesta: ")
+            salir = respuesta_SI_NO(salir)
             if salir == 'SI' or salir == 'NO':
                 break
             else:
                 print('\nIngrese una respuesta válida (Sí/No).')
+                continue
 
         if salir == 'SI':
-            print("Gracias por usar nuestro sistema, hasta la próxima.")
+            guardarCSV()  
+            print(f"\nLas notas han sido guardadas correctamente.")
+            print(f"\n{guiones(15)}Gracias por usar nuestro sistema, hasta la próxima.{guiones(15)}\n".upper())
             break
+        elif salir == 'NO':
+            limpiar_consola()
+            opcion = 0
         else:
             limpiar_consola()
             continue
