@@ -1,4 +1,4 @@
-#Módulos:
+#Módulos: 
 import datetime as dt           # Módulo para utilizar formato fechas.
 import os                       # Módulo para limpiar pantalla
 from tabulate import tabulate   # Módulo para dar formato tabular.
