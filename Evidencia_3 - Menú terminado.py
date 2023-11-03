@@ -492,8 +492,36 @@ lmenu_servicios_consultasYReportes_listadoDeServicios = [('Opción', 'Descripci�
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #CREACIÓN DE TABLAS SQL:
+try:
+    with sqlite3.connect('EVIDENCI_3_TALLER_MECANICO.db') as conn:
+        mi_cursor = conn.cursor()
+        mi_cursor.execute("CREATE TABLE IF NOT EXISTS CLIENTES \
+                        (CLAVE_CLIENTE INTEGER PRIMARY KEY NOT NULL, NOMBRE TEXT NOT NULL, \
+                        RFC TEXT NULL, CORREO_ELECTRONICO TEXT NOT NULL);")
 
+        mi_cursor.execute("CREATE TABLE IF NOT EXISTS NOTAS \
+                        (FOLIO INTEGER PRIMARY KEY NOT NULL, FECHA timestamp NOT NULL, \
+                        CLAVE_CLIENTE INTEGER NOT NULL, MONTO_A_PAGAR REAL NOT NULL, \
+                        FOREIGN KEY (CLAVE_CLIENTE) REFERENCES CLIENTES(CLAVE_CLIENTE));")
 
+        mi_cursor.execute("CREATE TABLE IF NOT EXISTS SERVICIOS \
+                        (CLAVE_SERVICIO INTEGER PRIMARY KEY NOT NULL, NOMBRE_SERVICIO TEXT NOT NULL, \
+                        COSTO_SERVICIO REAL NOT NULL);")
+
+        mi_cursor.execute("CREATE TABLE IF NOT EXISTS DETALLE_NOTA \
+                        (CLAVE_DETALLE INTEGER PRIMARY KEY NOT NULL, \
+                        FOLIO INTEGER NOT NULL, \
+                        CLAVE_SERVICIOS INTEGER NOT NULL,  \
+                        FOREIGN KEY (FOLIO) REFERENCES NOTAS(FOLIO), \
+                        FOREIGN KEY (CLAVE_SERVICIOS) REFERENCES SERVICIOS(CLAVE_SERVICIOS));")
+        
+        print('Tablas creadas existosamente')
+except Error as e:
+    print(e)
+except Exception:
+    print(f'Se produjo el siguiente error {sys.exc_info()[0]}')
+finally:
+    conn.close()
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #EJECUTAR MENÚ PRINCIPAL:
