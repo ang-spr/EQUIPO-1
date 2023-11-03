@@ -296,7 +296,7 @@ def menuClientes(ubicacion):
                 break
             guiones_separadores()
 
-            #Se insertan los datos en la BD
+            #Se insertan los datos en la BD (Tabla Clientes)
             try:
                 with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
                     mi_cursor = conn.cursor()
