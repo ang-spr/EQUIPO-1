@@ -493,7 +493,7 @@ lmenu_servicios_consultasYReportes_listadoDeServicios = [('Opción', 'Descripci�
 #-------------------------------------------------------------------------------------------------------------------------------
 #CREACIÓN DE TABLAS SQL:
 try:
-    with sqlite3.connect('EVIDENCI_3_TALLER_MECANICO.db') as conn:
+    with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
         mi_cursor = conn.cursor()
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS CLIENTES \
                         (CLAVE_CLIENTE INTEGER PRIMARY KEY NOT NULL, NOMBRE TEXT NOT NULL, \
@@ -515,13 +515,14 @@ try:
                         FOREIGN KEY (FOLIO) REFERENCES NOTAS(FOLIO), \
                         FOREIGN KEY (CLAVE_SERVICIOS) REFERENCES SERVICIOS(CLAVE_SERVICIOS));")
         
-        print('Tablas creadas existosamente')
+        print(f'{guiones(17)}Tablas creadas o localizadas existosamente.{guiones(17)}')
 except Error as e:
     print(e)
 except Exception:
     print(f'Se produjo el siguiente error {sys.exc_info()[0]}')
 finally:
     conn.close()
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #EJECUTAR MENÚ PRINCIPAL:
