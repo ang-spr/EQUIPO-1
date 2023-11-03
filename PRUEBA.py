@@ -185,7 +185,18 @@ def menuNotas(ubicacion):
         #Registrar una nota:
         if opcion == 1:
             mostrarTitulo(ubicacion)
-            input("Aquí irá su función específica")
+            #FECHA
+            while True:
+                fecha_registro = input("Fecha: ").strip()
+                try:
+                    fecha_procesada = dt.datetime.strptime(fecha_registro, "%d/%m/%Y").date()
+                    if fecha_procesada > fechaActual():
+                        print("\nLa fecha ingresada no debe ser posterior a la fecha actual.\nIngrese una fecha válida.")
+                        continue
+                    break
+                except ValueError:
+                    print("\nIngrese una fecha válida en formato (dd/mm/aaaa).")
+            guiones_separadores()
 
         #Cancelar una nota:
         elif opcion == 2:
@@ -589,8 +600,9 @@ try:
 
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS NOTAS \
                         (FOLIO INTEGER PRIMARY KEY NOT NULL, FECHA timestamp NOT NULL, \
-                        CLAVE_CLIENTE INTEGER NOT NULL, MONTO_A_PAGAR REAL NOT NULL, \
-                        FOREIGN KEY (CLAVE_CLIENTE) REFERENCES CLIENTES(CLAVE_CLIENTE));")
+                        CLAVE_CLIENTE INTEGER NOT NULL, DETALLE INTEGER NOT NULL, MONTO_A_PAGAR REAL NOT NULL, \
+                        FOREIGN KEY (CLAVE_CLIENTE) REFERENCES CLIENTES(CLAVE_CLIENTE) \
+                        FOREIGN KEY (DETALLE) REFERENCES SERVICIOS(CLAVE_SERVICIO));")
 
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS SERVICIOS \
                         (CLAVE_SERVICIO INTEGER PRIMARY KEY NOT NULL, NOMBRE_SERVICIO TEXT NOT NULL, \
@@ -616,5 +628,4 @@ finally:
 #-------------------------------------------------------------------------------------------------------------------------------
 #EJECUTAR MENÚ PRINCIPAL:
 menuPrincipal()
-
 #Prueba commit 
