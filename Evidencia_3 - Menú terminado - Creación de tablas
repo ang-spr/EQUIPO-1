@@ -303,8 +303,6 @@ def menuClientes(ubicacion):
                     datos_clientes = (nombre_cliente, rfc, mail)
                     mi_cursor.execute("INSERT INTO CLIENTES(NOMBRE, RFC, CORREO_ELECTRONICO)\
                     VALUES (?, ?, ?)", datos_clientes)
-                    print('Cliente agregado exitosamente')
-                    print(f"La clave asignada fue {mi_cursor.lastrowid}")
             except Error as e:
                 print(e)
             except Exception:
@@ -399,7 +397,39 @@ def menuServicios(ubicacion):
         #Agregar un servicio:
         if opcion == 1:
             mostrarTitulo(ubicacion)
-            input("Aquí irá su función específica")
+            #Agragar un Servicio
+            print('Ingrese el nuevo servicio. ')
+            while True:
+                servicio = darFormatoATexto(input('Servicio: '))
+                if servicio == '':
+                    print('\nIngrese una descripción válida.')
+                    continue
+                break
+            guiones_separadores()
+
+            #Precio
+            print('Ingrese el precio del servicio:')
+            while True:
+                precio = float(input('Precio: '))
+                if precio <= 0.00:
+                    print('El precio no es valido. Ingrese un valor superior a 0.00')
+                    continue
+                break
+            guiones_separadores()
+
+            #Se insertan los datos en la BD (Tabla Servicios)
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
+                    datos_servicios = (servicio,precio)
+                    mi_cursor.execute("INSERT INTO SERVICIOS(NOMBRE_SERVICIO, COSTO_SERVICIO)\
+                    VALUES (?, ?)", datos_servicios)
+            except Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()
 
         #Consultas y reportes:
         elif opcion == 2:
