@@ -444,6 +444,8 @@ def menuServicios(ubicacion):
         continue
 
 #menuPrincipal/menuServicios/menuConsultasYReportes.
+
+##AQUI EMPECE A MODIFICAR (FATIMA LOPEZ)
 def servicios_consultasYReportes(ubicacion):
     ubicacionOriginal = ubicacion.copy()
     opcion = 0
@@ -456,12 +458,14 @@ def servicios_consultasYReportes(ubicacion):
         #Búsqueda por clave de servicio:
         if opcion == 1:
             mostrarTitulo(ubicacion)
-            input("Aquí irá su función específica")
+            clave_servicio=input("Ingrese la clave del servicio a buscar: ")
+            buscarServicioPorClave(clave_servicio)
 
         #Búsqueda por nombre de servicio:
         elif opcion == 2:
             mostrarTitulo(ubicacion)
-            input("Aquí irá su función específica")
+            nombre_servicio = darFormatoATexto(input("Ingrese el nombre del servicio a buscar: "))
+            buscarServicioPorNombre(nombre_servicio)
 
         #Listado de servicios:
         elif opcion == 3:
@@ -488,12 +492,12 @@ def servicios_consultasYReportes_listadoDeServicios(ubicacion):
         #Ordenado por clave:
         if opcion == 1:
             mostrarTitulo(ubicacion)
-            input("Aquí irá su función específica")
+            listarServiciosOrdenadosPorClave() #input("Aquí irá su función específica")
 
         #Ordenado por nombre de servicio:
         elif opcion == 2:
             mostrarTitulo(ubicacion)
-            input("Aquí irá su función específica")
+            listarServiciosOrdenadosPorNombre() #input("Aquí irá su función específica")
 
         #Volver al menú anterior.
         else:
@@ -503,6 +507,24 @@ def servicios_consultasYReportes_listadoDeServicios(ubicacion):
         limpiar_consola()
         continue
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### HASTA AQUIII MODIFIQUE FATIMA LOPEZ
 #-------------------------------------------------------------------------------------------------------------------------------
 #FUNCIONES ESPECÍFICAS:
 
