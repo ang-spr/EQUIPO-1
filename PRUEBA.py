@@ -197,6 +197,113 @@ def menuNotas(ubicacion):
                 except ValueError:
                     print("\nIngrese una fecha válida en formato (dd/mm/aaaa).")
             guiones_separadores()
+            #Cliente
+            print('Ingrese la clave del cliente: ')
+            print(guiones(50))
+            #Consulta de los clientes existentes
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
+                    mi_cursor.execute("SELECT CLAVE_CLIENTE,NOMBRE,RFC,CORREO_ELECTRONICO FROM CLIENTES;")
+                    clientes = mi_cursor.fetchall()
+                    #Procedemos a evaluar si hay registros en la respuesta
+                    if clientes:
+                        print("    CLAVE_CLIENTE\t                NOMBRE\t                  RFC\t                   CORREO_ELECTRONICO")
+                        print("*" * 100)
+                        for clave, nombre, rfc, correo in clientes:
+                            print(f"{clave:^20}\t{nombre:^25}\t{rfc:^25}\t{correo:^25}")
+                            print(guiones(160))
+                    else:
+                        print("No se encontraron registros en la respuesta")
+            except Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()
+            
+            print(guiones(80))
+            id_cliente = int(input('CLAVE DEL CLIENTE: '))
+            print(guiones(80))
+            guiones_separadores()
+
+            #SERVICIO
+            servicios_seleccionados = []
+
+            while True:
+                print('Ingrese el ID del servicio a realizar:')
+                print(guiones(50))
+
+                try:
+                    with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                        mi_cursor = conn.cursor()
+                        mi_cursor.execute("SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO, COSTO_SERVICIO FROM SERVICIOS;")
+                        servicios = mi_cursor.fetchall()
+                        if servicios:
+                            print("    CLAVE_CLIENTE\t          SERVICIO\t                  PRECIO")
+                            print("*" * 100)
+                            for clave_s, servicio, precio in servicios:
+                                print(f"{clave_s:^20}\t{servicio:^25}\t{precio:^25}")
+                                print(guiones(100))
+                        else:
+                            print("No se encontraron registros en la respuesta")
+                except Error as e:
+                    print(e)
+                except Exception:
+                    print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+                finally:
+                    conn.close()
+
+                print(guiones(80))
+                id_servicio = int(input('CLAVE DEL SERVICIO: '))
+                print(guiones(80))
+                
+                # Consultar el costo del servicio seleccionado y agregarlo a la lista de servicios seleccionados
+                for clave_s, servicio, precio in servicios:
+                    if clave_s == id_servicio:
+                        servicios_seleccionados.append(precio)
+                        break
+
+                # Validar Otro Servicio
+                print('Desea otro servicio:')
+                otro_servicio = respuestaSINO()
+                if otro_servicio != 'SI':
+                    break
+
+            # Calcular el monto total a pagar
+            monto_a_pagar = sum(servicios_seleccionados)
+            print(f'Monto total a pagar por los servicios seleccionados: {monto_a_pagar}')
+
+            
+            #Se insertan los datos en la BD (Tabla Notas)
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
+                    datos_notas = (fecha_procesada,id_cliente,id_servicio,monto_a_pagar)
+                    mi_cursor.execute("INSERT INTO NOTAS(FECHA, CLAVE_CLIENTE, SERVICIO, MONTO_A_PAGAR) \
+                                     VALUES (?, ?, ?, ?)", datos_notas)
+                    folio = mi_cursor.lastrowid
+            except Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()
+
+            #Se insertan los datos en la BD (Tabla Detalle Notas)
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
+                    datos_detalle = (folio,id_servicio)
+                    mi_cursor.execute("INSERT INTO DETALLE_NOTA(FOLIO, CLAVE_SERVICIO) \
+                                     VALUES (?, ?)", datos_detalle)
+            except Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()
+        
 
         #Cancelar una nota:
         elif opcion == 2:
