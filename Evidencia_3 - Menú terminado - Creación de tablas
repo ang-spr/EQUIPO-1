@@ -263,26 +263,33 @@ def menuNotas(ubicacion):
                 # Consultar el costo del servicio seleccionado y agregarlo a la lista de servicios seleccionados
                 for clave_s, servicio, precio in servicios:
                     if clave_s == id_servicio:
+                        servicios_seleccionados.append(precio)
                         break
 
-                # Calcular el monto total a pagar
-                monto_a_pagar = sum(servicios_seleccionados)
-                print(f'Monto total a pagar por los servicios seleccionados: {monto_a_pagar}')
+                # Validar Otro Servicio
+                print('Desea otro servicio:')
+                otro_servicio = respuestaSINO()
+                if otro_servicio != 'SI':
+                    break
+
+            # Calcular el monto total a pagar
+            monto_a_pagar = sum(servicios_seleccionados)
+            print(f'Monto total a pagar por los servicios seleccionados: {monto_a_pagar}')
 
             
-                #Se insertan los datos en la BD (Tabla Notas)
-                try:
-                    with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-                        mi_cursor = conn.cursor()
-                        datos_notas = (fecha_procesada,id_cliente,id_servicio,monto_a_pagar)
-                        mi_cursor.execute("INSERT INTO NOTAS(FECHA, CLAVE_CLIENTE, SERVICIO, MONTO_A_PAGAR) \
-                                        VALUES (?, ?, ?, ?)", datos_notas)
-                except Error as e:
-                    print(e)
-                except Exception:
-                    print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-                finally:
-                    conn.close()
+            #Se insertan los datos en la BD (Tabla Notas)
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
+                    datos_notas = (fecha_procesada,id_cliente,id_servicio,monto_a_pagar)
+                    mi_cursor.execute("INSERT INTO NOTAS(FECHA, CLAVE_CLIENTE, SERVICIO, MONTO_A_PAGAR) \
+                                     VALUES (?, ?, ?, ?)", datos_notas)
+            except Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()
 
         #Cancelar una nota:
         elif opcion == 2:
