@@ -463,12 +463,12 @@ def servicios_consultasYReportes(ubicacion):
         #Búsqueda por clave de servicio:
         elif opcion == 2:
             mostrarTitulo(ubicacion)
-            buscar_clave_servicio()
+            buscarServicioPorClave()
 
         #Búsqueda por nombre del servicio:
         elif opcion == 3:
             mostrarTitulo(ubicacion)
-            buscar_nombre_servicio()
+            buscarServicioPorNombre()
 
         #Volver al menú anterior.
         else:
@@ -566,49 +566,8 @@ def exportar_a_excel(datos):
     libro_excel.save(nombre_archivo)
     print(f"El reporte ha sido exportado a {nombre_archivo}")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    input("Presione Enter para continuar. ")
-                    break
-                    os.system('cls' if os.name =='nt' else 'clear')
-                else:
-                    print("No se encontraron registros en la respuesta")
-
-        except Error as e:
-            print(e)
-        except Exception:
-            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-        finally:
-            conn.close()
-
-
+#******************************************************************************
+#LISTADO DE SERVICIOS REGISTRADOS/ORDENADO POR NOMBRE
 def listarServiciosOrdenadosPorNombre():
     while True:
         try:
@@ -620,10 +579,24 @@ def listarServiciosOrdenadosPorNombre():
 
                 if registros:
                     print("*" * 50)
-                    print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio'], tablefmt = 'pretty'))
-                    input("Presione Enter para continuar. ")
-                    break
-                    os.system('cls' if os.name =='nt' else 'clear')                   
+                    print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio', 'Precio'], tablefmt = 'pretty'))
+                    while True:
+                        print("1. Exportar a CSV")
+                        print("2. Exportar a Excel")
+                        print("3. Regresar al menú de reportes")
+                        selecciona = input("Seleccione una opción: ")
+                        if selecciona == '1':
+                            exportar_a_csv(registros)
+                            break
+                        elif selecciona == '2':
+                            exportar_a_excel(registros)
+                            break
+                        elif selecciona == '3':
+                            break
+                        else:
+                            print("Opción no válida. Por favor, seleccione una opción válida.")
+                        os.system('cls' if os.name == 'nt' else 'clear')    
+
                 else:
                     print("No se encontraron registros en la respuesta")
         except Error as e:
@@ -633,88 +606,87 @@ def listarServiciosOrdenadosPorNombre():
         finally:
             conn.close()
 
-def agregarServicio(servicio,precio):
-    try:
-        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-            mi_cursor=conn.cursor()
-            datos_servicios=(servicio,precio)
-            mi_cursor.execute("INSERT INTO SERVICIOS(NOMBRE_SERVICIO,COSTO_SERVICIO) VALUES (?,?)",datos_servicios)
-    except Error as e:
-        print(e)
 
-    except Exception:
-        print(f"Se produjo el siguiente error: {sys.exc_info([0])}")
-    finally:
-        conn.close()
-    print("Servicio agregado")
+#Exportar datos por el nombre
+def exportar_a_csv(datos):
+    archivo_csv_nombre = f"ReporteServiciosPorNombre_{dt.now().strftime('%m_%d_%Y')}.csv"
+    with open(archivo_csv_nombre, 'w', newline='') as csvfile:
+        grabador = csv.writer(csvfile)
+        grabador.writerow(['Clave servicio', 'Nombre servicio', 'Precio'])
+        grabador.writerows(datos)
+    print(f"El reporte ha sido exportado a {archivo_csv_nombre}")
 
+def exportar_a_excel(datos):
+    Archivo_EXCEL_Nombre = f"ReporteServiciosPorNombre_{dt.now().strftime('%m_%d_%Y')}.xlsx"
+    libro_Excel = openpyxl.Workbook()
+    hoja_excel = libro_Excel.active
+    hoja_excel.append(['Clave servicio', 'Nombre servicio', 'Precio'])
+    for fila in datos:
+        hoja_excel.append(fila)
+    libro_Excel.save(Archivo_EXCEL_Nombre)
+    print(f"El reporte ha sido exportado a {Archivo_EXCEL_Nombre}")
 
-#buscar servicio por clave
 def buscarServicioPorClave():
-    clave_servicio=int(input('Ingrese la clave a buscar: '))
-    try:
-        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-            mi_cursor=conn.cursor()
-            valores = {"CLAVE":clave_servicio}
-            mi_cursor.execute('SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO=:CLAVE_SERVICIO',valores)
-            servicio=mi_cursor.fetchall()
-            
-            if servicio:
-                os.system('cls' if os.name=='nt' else 'clear')
-                print("*" * 50)
-                print(tabulate(registros2,headers=['Detalles del servicio','Clave del servicio','Nombre del servicio','Costo del servicio'],tablefmt='pretty'))
-                input('Presione Enter para continuar. ')
-                break
-                os.system('cls' if os.name =='nt' else 'clear')
-            else:
-                print(f"No se encontró un registro asociado a la clave ingresada: {clave_servicio}")
-                input("Presione Enter para continuar. ")
-                break
-                os.system('cls' if os.name =='nt' else 'clear')
-    except Exception:
-        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-    finally:
-        conn.close()  
+    clave_a_buscar2 = int(input('Ingrese la clave a buscar: '))
+    while True:
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
+                    valores = {"CLAVE_SERVICIO":clave_a_buscar2}
+                    mi_cursor.execute("SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO = :CLAVE_SERVICIO", valores)
+                    registros = mi_cursor.fetchall()
+                    if registros:
+                        os.system('cls' if os.name =='nt' else 'clear')
+                        print("*" * 50)
+                        print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio', 'Precio'], tablefmt = 'pretty'))
+                        input("Presione Enter para continuar. ")
+                        break
+                        os.system('cls' if os.name =='nt' else 'clear')
+                    else:
+                        print(f"No se encontró un registro asociado a la clave ingresada: {clave_a_buscar2}")
+                        input("Presione Enter para continuar. ")
+                        break
+                        os.system('cls' if os.name =='nt' else 'clear')
+            except Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()    
 
+#******************************************************************************
+#BUSQUEDA POR NOMBRE SERVICIO
 def buscarServicioPorNombre():
-    nombre_servicio=darFormatoATexto(input('Ingrese el nombre a buscar: '))
-    try:
-        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-            mi_cursor=conn.cursor
-            valores = {"NOMBRE":nombre_servicio}
-            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE NOMBRE_SERVICIO=:NOMBRE_SERVICIO",valores)
-            servicio=mi_cursor.fetchall()
-            
-            if servicio:
-                print("Detalles del servicio: ")
-                for s in servicio:
-                    print(f"Clave: {s[0]}")
-                    print(f"Nombre: {s[1]}")
-                    print(f"Costo: {s[2]:.2f}")
-            else:
-                print("No se encontraron servicios con el nombre especificado.")
-    except Error as e:
-        print(e)
-    except Exception:
-        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-    finally:
-        conn.close()
-
-
-##AQUI ME QUEDE HOY 04 NOV 2023
-
-
-
-
-
-
-
-
-
-
-
+    nombre_a_buscar2 = darFormatoATexto(input('Ingrese el nombre a buscar: '))
+    while True:
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
+                    valores = {"NOMBRE":nombre_a_buscar2}
+                    mi_cursor.execute("SELECT * FROM SERVICIOS WHERE NOMBRE = :NOMBRE", valores)
+                    registros = mi_cursor.fetchall()
+                    if registros:
+                        os.system('cls' if os.name =='nt' else 'clear')
+                        print("*" * 50)
+                        print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio', 'Precio'], tablefmt = 'pretty'))
+                        input("Presione Enter para continuar. ")
+                        break
+                        os.system('cls' if os.name =='nt' else 'clear')
+                    else:
+                        print(f"No se encontró un registro asociado al nombre ingresado: {nombre_a_buscar2}")
+                        input("Presione Enter para continuar. ")
+                        break
+                        os.system('cls' if os.name =='nt' else 'clear')
+            except Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()               
 
 ##### HASTA AQUIII MODIFIQUE FATIMA LOPEZ
+
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------------
