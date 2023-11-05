@@ -524,15 +524,16 @@ def agregarServicio(servicio,precio):
     print("Servicio agregado")
 
 #buscar servicio por clave
-def buscarServicioPorClave(clave_servicio):
+def buscarServicioPorClave():
     clave_servicio=int(input('Ingrese la clave a buscar: '))
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor=conn.cursor()
-            mi_cursor.execute('SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO=:CLAVE_SERVICIO',valores2)
-            registros2=mi_cursor.fetchall()
+            valores = {"CLAVE":clave_servicio}
+            mi_cursor.execute('SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO=:CLAVE_SERVICIO',valores)
+            servicio=mi_cursor.fetchall()
             
-            if registros2:
+            if servicio:
                 os.system('cls' if os.name=='nt' else 'clear')
                 print("*" * 50)
                 print(tabulate(registros2,headers=['Detalles del servicio','Clave del servicio','Nombre del servicio','Costo del servicio'],tablefmt='pretty'))
@@ -540,7 +541,7 @@ def buscarServicioPorClave(clave_servicio):
                 break
                 os.system('cls' if os.name =='nt' else 'clear')
             else:
-                print(f"No se encontró un registro asociado a la clave ingresada: {clave_a_buscar}")
+                print(f"No se encontró un registro asociado a la clave ingresada: {clave_servicio}")
                 input("Presione Enter para continuar. ")
                 break
                 os.system('cls' if os.name =='nt' else 'clear')
@@ -549,15 +550,71 @@ def buscarServicioPorClave(clave_servicio):
     finally:
         conn.close()  
 
+def buscarServicioPorNombre():
+    nombre_servicio=darFormatoATexto(input('Ingrese el nombre a buscar: '))
+    try:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+            mi_cursor=conn.cursor
+            valores = {"NOMBRE":nombre_servicio}
+            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE NOMBRE_SERVICIO=:NOMBRE_SERVICIO",valores)
+            servicio=mi_cursor.fetchall()
+            
+            if servicio:
+                print("Detalles del servicio: ")
+                for s in servicio:
+                    print(f"Clave: {s[0]}")
+                    print(f"Nombre: {s[1]}")
+                    print(f"Costo: {s[2]:.2f}")
+            else:
+                print("No se encontraron servicios con el nombre especificado.")
+    except Error as e:
+        print(e)
+    except Exception:
+        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+    finally:
+        conn.close()
+
+# Listar los servicios ordenados por clave
+def listarServiciosOrdenadosPorClave():
+    while True:
+        try:
+            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                mi_cursor=conn.cursor()
+                mi_cursor.execute("SELECT * FROM SERVICIOS ORDER BY CLAVE_SERVICIO")
+                registros = mi_cursor.fetchall()
+
+                guiones_separadores()
+                if registros:
+                    print("*" * 50)
+                    print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio'], tablefmt = 'pretty'))
+                    input("Presione Enter para continuar. ")
+                    break
+                    os.system('cls' if os.name =='nt' else 'clear')
+                else:
+                    print("No se encontraron registros en la respuesta")
+
+        except Error as e:
+            print(e)
+        except Exception:
+            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+        finally:
+            conn.close()
+
+
+def listarServiciosOrdenadosPorNombre():
+    
+
+
+
+
+
+
+
+
+
 
 
 ##AQUI ME QUEDE HOY 04 NOV 2023
-
-
-
-
-
-
 
 
 
