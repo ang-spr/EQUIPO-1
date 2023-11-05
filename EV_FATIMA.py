@@ -497,7 +497,7 @@ def servicios_consultasYReportes_listadoDeServicios(ubicacion):
         #Ordenado por nombre de servicio:
         elif opcion == 2:
             mostrarTitulo(ubicacion)
-            listarServiciosOrdenadosPorNombre() #input("Aquí irá su función específica")
+            listarServiciosOrdenadosPorNombre()
 
         #Volver al menú anterior.
         else:
@@ -506,9 +506,42 @@ def servicios_consultasYReportes_listadoDeServicios(ubicacion):
         opcion = 0
         limpiar_consola()
         continue
+#funciones para las operaciones con base da datos
+#agregar nuevo servicio a la base de datos
+def agregarServicio(servicio,precio):
+    try:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+            mi_cursor=conn.cursor()
+            datos_servicios=(servicio,precio)
+            mi_cursor.execute("INSERT INTO SERVICIOS(NOMBRE_SERVICIO,COSTO_SERVICIO) VALUES (?,?)",datos_servicios)
+    except Error as e:
+        print(e)
+
+    except Exception:
+        print(f"Se produjo el siguiente error: {sys.exc_info([0])}")
+    finally:
+        conn.close()
+    print("Servicio agregado")
+
+#buscar servicio por clave
+def buscarServicioPorClave(clave_servicio):
+    clave_servicio=int(input('Ingrese la clave a buscar: '))
+    while True:
+        try:
+            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                mi_cursor=conn.cursor()
+                valores2={'CLAVE SERVICIO': clave_servicio} 
+                mi_cursor.execute('SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO=:CLAVE_SERVICIO',valores2)
+                registros2=mi_cursor.fetchall()
+
+                if registros2:
+                    os.system('cls' if os.name=='nt' else 'clear')
+                    print("*" * 50)
+                    print(tabulate(registros2,headers=['Clave',....]))
+            
 
 
-
+            ##AQUI ME QUEDE HOY 04 NOV 2023
 
 
 
@@ -525,6 +558,8 @@ def servicios_consultasYReportes_listadoDeServicios(ubicacion):
 
 
 ##### HASTA AQUIII MODIFIQUE FATIMA LOPEZ
+
+
 #-------------------------------------------------------------------------------------------------------------------------------
 #FUNCIONES ESPECÍFICAS:
 
