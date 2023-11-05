@@ -526,22 +526,35 @@ def agregarServicio(servicio,precio):
 #buscar servicio por clave
 def buscarServicioPorClave(clave_servicio):
     clave_servicio=int(input('Ingrese la clave a buscar: '))
-    while True:
-        try:
-            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-                mi_cursor=conn.cursor()
-                valores2={'CLAVE SERVICIO': clave_servicio} 
-                mi_cursor.execute('SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO=:CLAVE_SERVICIO',valores2)
-                registros2=mi_cursor.fetchall()
-
-                if registros2:
-                    os.system('cls' if os.name=='nt' else 'clear')
-                    print("*" * 50)
-                    print(tabulate(registros2,headers=['Clave',....]))
+    try:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+            mi_cursor=conn.cursor()
+            mi_cursor.execute('SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO=:CLAVE_SERVICIO',valores2)
+            registros2=mi_cursor.fetchall()
             
+            if registros2:
+                os.system('cls' if os.name=='nt' else 'clear')
+                print("*" * 50)
+                print(tabulate(registros2,headers=['Detalles del servicio','Clave del servicio','Nombre del servicio','Costo del servicio'],tablefmt='pretty'))
+                input('Presione Enter para continuar. ')
+                break
+                os.system('cls' if os.name =='nt' else 'clear')
+            else:
+                print(f"No se encontró un registro asociado a la clave ingresada: {clave_a_buscar}")
+                input("Presione Enter para continuar. ")
+                break
+                os.system('cls' if os.name =='nt' else 'clear')
+    except Exception:
+        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+    finally:
+        conn.close()  
 
 
-            ##AQUI ME QUEDE HOY 04 NOV 2023
+
+##AQUI ME QUEDE HOY 04 NOV 2023
+
+
+
 
 
 
