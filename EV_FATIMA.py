@@ -400,8 +400,8 @@ def menuServicios(ubicacion):
             #Agragar un Servicio
             print('Ingrese el nuevo servicio. ')
             while True:
-                servicio = darFormatoATexto(input('Servicio: '))
-                if servicio == '':
+                nombre_servicio = darFormatoATexto(input('Nombre servicio: '))
+                if nombre_servicio == '':
                     print('\nIngrese una descripción válida.')
                     continue
                 break
@@ -421,8 +421,8 @@ def menuServicios(ubicacion):
             try:
                 with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
                     mi_cursor = conn.cursor()
-                    datos_servicios = (servicio,precio)
-                    mi_cursor.execute("INSERT INTO SERVICIOS(NOMBRE_SERVICIO, COSTO_SERVICIO)\
+                    datos_servicios = (nombre_servicio,precio)
+                    mi_cursor.execute("INSERT INTO SERVICIOS(NOMBRE_SERVICIO, PRECIO)\
                     VALUES (?, ?)", datos_servicios)
             except Error as e:
                 print(e)
@@ -445,7 +445,7 @@ def menuServicios(ubicacion):
 
 #menuPrincipal/menuServicios/menuConsultasYReportes.
 
-##AQUI EMPECE A MODIFICAR (FATIMA LOPEZ)
+##AQUI EMPECE A MODIFICAR (FATIMA LOPEZ)(como quiera modifiq arriba)
 def servicios_consultasYReportes(ubicacion):
     ubicacionOriginal = ubicacion.copy()
     opcion = 0
@@ -455,59 +455,184 @@ def servicios_consultasYReportes(ubicacion):
         if opcion == 0:
             opcion, ubicacion = mostrarValidarMenu(ubicacion, opcion, lmenu_servicios_consultasYReportes)
 
-        #Búsqueda por clave de servicio:
-        if opcion == 1:
-            mostrarTitulo(ubicacion)
-            clave_servicio=input("Ingrese la clave del servicio a buscar: ")
-            buscarServicioPorClave(clave_servicio)
-
-        #Búsqueda por nombre de servicio:
-        elif opcion == 2:
-            mostrarTitulo(ubicacion)
-            nombre_servicio = darFormatoATexto(input("Ingrese el nombre del servicio a buscar: "))
-            buscarServicioPorNombre(nombre_servicio)
-
-        #Listado de servicios:
-        elif opcion == 3:
+        
+        #Listado de servicios registrados
+        if opcion==1:
             servicios_consultasYReportes_listadoDeServicios(ubicacion)
 
-        #Volver al menú anterior.
-        else:
-            break
-
-        opcion = 0
-        limpiar_consola()
-        continue
-
-#menuPrincipal/menuServicios/menuConsultasYReportes/menuListadoDeServicios.
-def servicios_consultasYReportes_listadoDeServicios(ubicacion):
-    ubicacionOriginal = ubicacion.copy()
-    opcion = 0
-
-    while True:    
-        ubicacion = ubicacionOriginal.copy()
-        if opcion == 0:
-            opcion, ubicacion = mostrarValidarMenu(ubicacion, opcion, lmenu_servicios_consultasYReportes_listadoDeServicios)
-
-        #Ordenado por clave:
-        if opcion == 1:
-            mostrarTitulo(ubicacion)
-            listarServiciosOrdenadosPorClave() #input("Aquí irá su función específica")
-
-        #Ordenado por nombre de servicio:
+        #Búsqueda por clave de servicio:
         elif opcion == 2:
             mostrarTitulo(ubicacion)
-            listarServiciosOrdenadosPorNombre()
+            buscar_clave_servicio()
+
+        #Búsqueda por nombre del servicio:
+        elif opcion == 3:
+            mostrarTitulo(ubicacion)
+            buscar_nombre_servicio()
 
         #Volver al menú anterior.
         else:
             break
-
         opcion = 0
         limpiar_consola()
         continue
+
+        #menuPrincipal/menuServicios/menuConsultasYReportes/menuListadoDeServicios.
+        def servicios_consultasYReportes_listadoDeServicios(ubicacion):
+            ubicacionOriginal = ubicacion.copy()
+            opcion = 0
+
+            while True:    
+                ubicacion = ubicacionOriginal.copy()
+                if opcion == 0:
+                    opcion, ubicacion = mostrarValidarMenu(ubicacion, opcion, lmenu_servicios_consultasYReportes_listadoDeServicios)
+                
+                #Ordenado por clave
+                if opcion == 1:
+                    mostrarTitulo(ubicacion)
+                    listarServiciosOrdenadosPorClave() #input("Aquí irá su función específica")
+
+                #Ordenado por nombre de servicio
+                elif opcion == 2:
+                    mostrarTitulo(ubicacion)
+                    listarServiciosOrdenadosPorNombre()
+
+                #Volver al menú anterior.
+                else:
+                    break
+
+                opcion = 0
+                limpiar_consola()
+                continue
+
 #funciones para las operaciones con base da datos
-#agregar nuevo servicio a la base de datos
+def listarServiciosOrdenadosPorClave(): #listado servicio por clave
+    while True:
+        try:
+            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                mi_cursor=conn.cursor()
+                mi_cursor.execute("SELECT * FROM SERVICIOS ORDER BY CLAVE_SERVICIO")
+                registros = mi_cursor.fetchall()
+
+                guiones_separadores()
+                if registros:
+                    print("*" * 50)
+                    print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio'], tablefmt = 'pretty'))
+                    guiones_separadores()
+                    while True:
+                        print("1. Exportar a CSV")
+                        print("2. Exportar a Excel")
+                        print("3. Regresar al menú de reportes")
+                        opcion = input("Seleccione una opción: ")
+
+                        if opcion == '1':
+                            exportar_a_csv(registros)
+                            break
+                        elif opcion == '2':
+                            exportar_a_excel(registros)
+                            break
+                        elif opcion == '3':
+                            break
+                        else:
+                            print("Opción no válida. Por favor, seleccione una opción válida.")
+                    os.system('cls' if os.name == 'nt' else 'clear')
+                else:
+                    print("No se encontraron registros en la respuesta")
+
+        except Error as e:
+            print(e)
+        except Exception:
+            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+        finally:
+            conn.close()
+
+#Exportar a EXCEL/CSV            
+def exportar_a_csv(datos):
+    nombre_archivo = f"ReporteServiciosPorClave_{dt.now().strftime('%m_%d_%Y')}.csv"
+    with open(nombre_archivo, 'w', newline='') as archivo_csv:
+        grabador = csv.writer(archivo_csv)
+        grabador.writerow(['Clave servicio', 'Nombre servicio', 'Precio'])
+        grabador.writerows(datos)
+    print(f"El reporte ha sido exportado a {nombre_archivo}")
+
+
+def exportar_a_excel(datos):
+    nombre_archivo = f"ReporteServiciosPorClave_{dt.now().strftime('%m_%d_%Y')}.xlsx"
+    libro_excel = openpyxl.Workbook()
+    hoja_excel = libro_excel.active
+    hoja_excel.append(['Clave servicio', 'Nombre', 'Precio'])
+    for fila in datos:
+        hoja_excel.append(fila)
+    libro_excel.save(nombre_archivo)
+    print(f"El reporte ha sido exportado a {nombre_archivo}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    input("Presione Enter para continuar. ")
+                    break
+                    os.system('cls' if os.name =='nt' else 'clear')
+                else:
+                    print("No se encontraron registros en la respuesta")
+
+        except Error as e:
+            print(e)
+        except Exception:
+            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+        finally:
+            conn.close()
+
+
+def listarServiciosOrdenadosPorNombre():
+    while True:
+        try:
+            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                mi_cursor = conn.cursor()
+                mi_cursor.execute("SELECT * FROM SERVICIOS ORDER BY NOMBRE")
+                registros = mi_cursor.fetchall()
+                guiones_separadores()
+
+                if registros:
+                    print("*" * 50)
+                    print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio'], tablefmt = 'pretty'))
+                    input("Presione Enter para continuar. ")
+                    break
+                    os.system('cls' if os.name =='nt' else 'clear')                   
+                else:
+                    print("No se encontraron registros en la respuesta")
+        except Error as e:
+            print(e)
+        except Exception:
+            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+        finally:
+            conn.close()
+
 def agregarServicio(servicio,precio):
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
@@ -522,6 +647,7 @@ def agregarServicio(servicio,precio):
     finally:
         conn.close()
     print("Servicio agregado")
+
 
 #buscar servicio por clave
 def buscarServicioPorClave():
@@ -573,45 +699,6 @@ def buscarServicioPorNombre():
         print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
     finally:
         conn.close()
-
-# Listar los servicios ordenados por clave
-def listarServiciosOrdenadosPorClave():
-    while True:
-        try:
-            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-                mi_cursor=conn.cursor()
-                mi_cursor.execute("SELECT * FROM SERVICIOS ORDER BY CLAVE_SERVICIO")
-                registros = mi_cursor.fetchall()
-
-                guiones_separadores()
-                if registros:
-                    print("*" * 50)
-                    print(tabulate(registros, headers = ['Clave servicio', 'Nombre servicio'], tablefmt = 'pretty'))
-                    input("Presione Enter para continuar. ")
-                    break
-                    os.system('cls' if os.name =='nt' else 'clear')
-                else:
-                    print("No se encontraron registros en la respuesta")
-
-        except Error as e:
-            print(e)
-        except Exception:
-            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-        finally:
-            conn.close()
-
-
-def listarServiciosOrdenadosPorNombre():
-    
-
-
-
-
-
-
-
-
-
 
 
 ##AQUI ME QUEDE HOY 04 NOV 2023
