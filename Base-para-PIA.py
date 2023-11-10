@@ -718,7 +718,8 @@ def notas_ordenadoFolio():
         return
     
     try:
-        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db',
+                             detect_types = sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES) as conn:
             mi_cursor = conn.cursor()
             print('Ingrese el folio de la nota a buscar:')
             mi_cursor.execute("""
