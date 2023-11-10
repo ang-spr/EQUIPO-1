@@ -550,9 +550,12 @@ def recuperarNota():
         conn.close()
     guiones_separadores()
 
-    print("Ingrese el folio de la nota.")
+    print("Ingrese el folio de la nota o ingrese 0 para regresar al menu.")
     while True:
         folio = solicitarSoloNumeroEntero('Folio')
+        if folio == 0:
+            return
+
         try:
             with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
                 mi_cursor = conn.cursor()
