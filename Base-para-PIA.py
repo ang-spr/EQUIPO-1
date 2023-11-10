@@ -1247,13 +1247,23 @@ def agregarServicio():
 def servicios_busquedaClave():
     if validarContinuarOpcion():
         return
-
-    print("Ingrese la clave a buscar.")
-    clave_a_buscar = solicitarSoloNumeroEntero('Clave')
-
+    
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
+            print("Ingrese la clave a buscar.")
+            mi_cursor.execute("SELECT CLAVE_SERVICIO,NOMBRE_SERVICIO FROM SERVICIOS")
+            servicio = mi_cursor.fetchall()
+
+            if servicio:
+                print(tabulate(servicio, headers=["Clave","Servicio"], tablefmt='pretty'))
+            else:
+                aviso("No hay notas disponibles en el sistema.", 15)
+                indicarEnter()
+                return
+            
+            clave_a_buscar = solicitarSoloNumeroEntero('Clave')
+
             valores = {"CLAVE_SERVICIO":clave_a_buscar}
             mi_cursor.execute("SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO = :CLAVE_SERVICIO", valores)
             registros = mi_cursor.fetchall()
