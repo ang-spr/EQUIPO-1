@@ -550,10 +550,9 @@ def recuperarNota():
         conn.close()
     guiones_separadores()
 
-    print("Ingrese el folio de la nota a recuperar.")
+    print("Ingrese el folio de la nota.")
     while True:
         folio = solicitarSoloNumeroEntero('Folio')
-
         try:
             with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
                 mi_cursor = conn.cursor()
@@ -689,7 +688,7 @@ def notas_ordenadoPeriodo():
 
         if respuesta in (1, 2):
             guiones_separadores()
-            nombre_archivo = f'ReportePorPeriodo_{fecha_inicial.strftime("%m_%d_%Y")}_{fecha_fin.strftime("%m_%d_%Y")}'
+            nombre_archivo = f'ReportePorPeriodo_{fecha_inicial.strftime("%d_%m_%Y")}_{fecha_fin.strftime("%d_%m_%Y")}'
             df = pd.DataFrame(registros, columns = ['Clave', 'Nombre', 'RFC', 'Correo electronico'])
 
             if respuesta == 1:
@@ -973,7 +972,7 @@ def clientes_ordenadoClave():
 
         if respuesta in (1, 2):
             guiones_separadores()
-            fechaReporte = fechaActual().strftime("%m%d%Y")
+            fechaReporte = fechaActual().strftime("%d%m%Y")
             nombre_archivo = f'ReporteClientesActivosPorClave_{fechaReporte}'
             df = pd.DataFrame(registros, columns=['Clave', 'Nombre', 'RFC', 'Correo electrónico'])
 
@@ -1026,7 +1025,7 @@ def clientes_ordenadoNombre():
 
         if respuesta in (1, 2):
             guiones_separadores()
-            fechaReporte = fechaActual().strftime("%m%d%Y")
+            fechaReporte = fechaActual().strftime("%d%m%Y")
             nombre_archivo = f'ReporteClientesActivosPorNombre_{fechaReporte}'
             df = pd.DataFrame(registros, columns=['Clave', 'Nombre', 'RFC', 'Correo electronico'])
 
@@ -1303,7 +1302,7 @@ def servicio_ordenadoClave():
 
         if respuesta in (1, 2):
             guiones_separadores()
-            fechaReporte = fechaActual().strftime("%m%d%Y")
+            fechaReporte = fechaActual().strftime("%d%m%Y")
             nombre_archivo = f'ReporteServicioPorClave_{fechaReporte}'
 
             df = pd.DataFrame(registros, columns=['Clave servicio', 'Nombre servicio', 'Precio'])
@@ -1357,7 +1356,7 @@ def servicio_ordenadoNombre():
 
         if respuesta in (1, 2):
             guiones_separadores()
-            fechaReporte = fechaActual().strftime("%m%d%Y")
+            fechaReporte = fechaActual().strftime("%d%m%Y")
             nombre_archivo = f'ReporteServicioPorNombre_{fechaReporte}'
 
             df = pd.DataFrame(registros, columns=['Clave servicio', 'Nombre servicio', 'Precio'])
