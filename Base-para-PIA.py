@@ -716,26 +716,50 @@ def notas_ordenadoPeriodo():
 def notas_ordenadoFolio():
     if validarContinuarOpcion():
         return
-
-    print('Ingrese el folio de la nota a buscar: ')
-    folio = solicitarSoloNumeroEntero('Folio')
-
+    
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT COUNT(*) FROM NOTAS WHERE (FOLIO = ?) AND (ESTADO_NOTA = 1)", (folio,))
+            print('Ingrese el folio de la nota a buscar:')
+            mi_cursor.execute("""
+                SELECT FOLIO, strftime('%d/%m/%Y', FECHA) AS 'FECHA', C.NOMBRE
+                FROM NOTAS N
+                JOIN CLIENTES C ON N.CLAVE_CLIENTE = C.CLAVE_CLIENTE
+                WHERE ESTADO_NOTA = 1
+                ORDER BY FOLIO;
+            """)
+            notas_ordenadas = mi_cursor.fetchall()
+            if notas_ordenadas:
+                print(tabulate(notas_ordenadas, headers=["Folio", "Fecha", "Nombre del Cliente"], tablefmt='pretty'))
+            else:
+                aviso("No hay notas disponibles en el sistema.", 15)
+                indicarEnter()
+                return
 
+            folio = solicitarSoloNumeroEntero('Folio')
+
+            mi_cursor.execute("SELECT COUNT(*) FROM NOTAS WHERE (FOLIO = ?) AND (ESTADO_NOTA = 1)", (folio,))
             if not mi_cursor.fetchone()[0] > 0:
                 aviso("La nota con el folio proporcionado no se encuentra en el sistema.", 15)
                 indicarEnter()
-                return      
+                return
+            
+            mi_cursor.execute("""
+                SELECT FOLIO, strftime('%d/%m/%Y', FECHA) AS 'FECHA', C.NOMBRE, MONTO_A_PAGAR
+                FROM NOTAS N
+                JOIN CLIENTES C ON N.CLAVE_CLIENTE = C.CLAVE_CLIENTE
+                WHERE (FOLIO = ?) AND (ESTADO_NOTA = 1);
+            """, (folio,))
+            nota_consulta = mi_cursor.fetchone()
+            print('\nInformación de la nota seleccionada:')
+            print(tabulate([nota_consulta], headers=["Folio", "Fecha", "Nombre del Cliente", "Monto a Pagar"], tablefmt='pretty'))
     except Error as e:
         print(e)
     except Exception:
         print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
     finally:
         conn.close()
-    guiones_separadores()
+        guiones_separadores()
 
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db',
