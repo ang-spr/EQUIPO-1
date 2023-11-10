@@ -670,6 +670,14 @@ def notas_ordenadoPeriodo():
                 aviso('No se encontraron registros de notas en el rango de fechas proporcionado.', 20)
                 indicarEnter()
                 return
+            mi_cursor.execute("""
+                SELECT AVG(N.MONTO_A_PAGAR) AS "MONTO PROMEDIO"
+                FROM NOTAS N
+                WHERE N.FECHA BETWEEN ? AND ? """,(fecha_inicial,fecha_fin))
+            monto_promedio = mi_cursor.fetchone()[0]
+            print(guiones(80))
+            print(f'El monto promedio de las notas en ese periodo es: {monto_promedio:.2f}')
+            print(guiones(80))
     except Error as e:
         print(e)
     except Exception:
