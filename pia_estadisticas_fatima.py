@@ -1472,10 +1472,10 @@ def serviciosMasPrestados(ubicacion):
                 cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')
                 
                 
-            fecha_inicial = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
-            fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
+            fecha_inicial2 = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
+            fecha_final2 = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
             
-            while fecha_final < fecha_inicial:
+            while fecha_final2 < fecha_inicial2:
                 print("La fecha debe ser igual o posterior a la fecha inicial")
 		        fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
                 
@@ -1485,7 +1485,7 @@ def serviciosMasPrestados(ubicacion):
                            WHERE FECHA_PRESTACION BETWEEN ? AND ? 
                            GROUP BY NOMBRE_SERVICIO 
                            ORDER BY CANTIDAD_PRESTADA DESC LIMIT ?
-                           """, (fecha_inicial,fecha_final,cantidad_servicios))
+                           """, (fecha_inicial2,fecha_final2,cantidad_servicios))
             resultados = mi_cursor.fetchall()
             
             if not resultados:
@@ -1518,8 +1518,8 @@ def serviciosMasPrestados(ubicacion):
 
         if respuesta in (1, 2):
             guiones_separadores()
-            fecha_inicial_str = fecha_inicial.strftime("%d%m%Y")
-            fecha_final_str = fecha_final.strftime("%d%m%Y")
+            fecha_inicial_str = fecha_inicial2.strftime("%d%m%Y")
+            fecha_final_str = fecha_final2.strftime("%d%m%Y")
             nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial_str}_{fecha_final_str}'
 
             if respuesta == 1:
@@ -1536,14 +1536,43 @@ def serviciosMasPrestados(ubicacion):
         aviso('Información no exportada', 20)
         indicarEnter()
 
-def solicitarFecha(mensaje):
+    print("Ingrese la fecha inicial del periodo a reportar en el formato (dd/mm/aaaa) ")
     while True:
-        fecha_str=input(f'{mensaje}: ')
+        fecha_str = input(f'Fecha inicial: ').strip()
+
+        if fecha_str == "":
+            fecha_str = "01/01/2000"
+            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
+
         try:
-            fecha = fechaActual().strptime(fecha_str,"%d%m%Y")
-            return fecha
+            fecha_inicial2= dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
+            break
         except ValueError:
-            print("Formato de fecha incorrecto, por favor ingrese la fecha en formato (d/mm/aaaa)")
+            print("\nIngrese una fecha inicial válida en formato dd/mm/aaaa.")
+            continue
+
+    print("\nIngresa la fecha final en el formato (dd/mm/aaaa).")
+    while True:
+        fecha_str2= input("Fecha final: ").strip()
+
+        if fecha_str2 == "":
+            fecha_final2= fechaActual()
+            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
+            break
+
+        try:
+            fecha_final2= dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
+            if fecha_inicial2 <= fecha_final2:
+                break
+            else:
+                print("\nLa fecha inicial no puede ser mayor que la fecha final. Ingrese fechas válidas.")
+        except ValueError:
+            print("\nIngrese una fecha final válida en formato dd/mm/aaaa.")
+            continue
+
+
+
+##AQUI ME QUEDE SEGUIR MODIFICANDO
 
      
 
