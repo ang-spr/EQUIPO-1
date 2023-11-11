@@ -1431,6 +1431,109 @@ def servicio_ordenadoNombre():
         aviso('Información no exportada', 20)
         indicarEnter()
 
+def suspenderServicio(ubicacion):   #FATIMA: suspenderServicio
+    if validarContinuarOpcion():
+        return
+
+    print('Ingrese la clave del servicio a suspender: ')
+    clave_servicio_suspender= solicitarSoloNumeroEntero('Clave servicio: ')
+    
+    try:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+            mi_cursor = conn.cursor()
+            mi_cursor.execute("SELECT COUNT(*) FROM SERVICIOS WHERE (CLAVE_SERVICIO_SUSPENDER = ?)", (clave_servicio_suspender,))
+
+            if not mi_cursor.fetchone()[0] > 0:
+                aviso("El servicio con la clave proporcionada no existe o ya fue suspendida.", 15)
+                indicarEnter()
+                return
+            
+    except Error as e:
+        print(e)
+    except Exception:
+        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+    finally:
+        conn.close()
+    guiones_separadores()
+    
+    try:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+            mi_cursor = conn.cursor()
+            mi_cursor.execute("""
+                SELECT 
+                    S.CLAVE_SERVICIO_SUSPENDER, 
+                    S.NOMBRE_SERVICIO,
+                    S.COSTO_SERVICIO
+                FROM SERVICIOS S
+                WHERE S.CLAVE_SERVICIO_SUSPENDER = ?;
+            """, (clave_servicio_suspender,))
+            
+            servicio_a_suspender = mi_cursor.fetchall()
+
+            if servicio_a_suspender:
+                print("Datos del servicio:")
+                print(tabulate([servicio_a_suspender], headers = ["Clave servicio", "Nombre servicio", "Costo servicio"], tablefmt = 'pretty'))
+            else:
+                print("No se encontró el servicio con la clave proporcionada")
+                indicarEnter()
+
+                return
+    
+    except sqlite3.Error as e:
+        print(e)
+        indicarEnter()
+        return
+    
+    except Exception:
+        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+        indicarEnter()
+        return
+
+    guiones_separadores()
+    print('¿Desea suspender el servicio? Confirme su respuesta (Sí/No).')
+    confirmarSuspender = respuestaSINO()
+
+    if confirmarSuspender == 'SI':
+        try:
+            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                mi_cursor = conn.cursor()
+                mi_cursor.execute("UPDATE SERVICIOS SET ESTADO_SERVICIO = 0 WHERE CLAVE_SERVICIO_SUSPENDER = ?", (clave_servicio_suspender,))
+                aviso("El servicio ha sido suspendido.", 20)
+        except sqlite3.Error as e:
+            print(e)
+            indicarEnter()
+            return 
+        except Exception:
+            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            indicarEnter()
+            return
+        finally:
+            conn.close()
+    else:
+        aviso("El servicio no fue suspendido.", 20)
+
+    indicarEnter()
+    limpiar_consola()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##AQUI EMPECE YO FATIMA (MENU ESTADISTICAS)
 def menuEstadisticas(ubicacion):
     ubicacionOriginal = ubicacion.copy()
