@@ -1547,27 +1547,12 @@ def solicitarFecha(mensaje):
 
      
 
-
-    #elif opcion == 2:
-
-
+def clientesMasNotas(ubicacion):
+    break
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def promedioMontoDeNotas(ubicacion):
+    break
 
 
 
