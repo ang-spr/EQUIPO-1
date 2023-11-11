@@ -1469,45 +1469,51 @@ def serviciosMasPrestados(ubicacion):
             #if cantidad_servicios:
             # #print("Cantidad de servicios encontrados")
 	        #else:
-            # #print("Ingrese números váidos")
+            ##print("Ingrese números váidos")
              
 	        fecha_inicial = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
 	        fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
+            
             while fecha_final < fecha_inicial:
                 print("La fecha debe ser igual o posterior a la fecha inicial")
-		fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
+		    fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
 
-	    mi_cursor.execute(SELECT NOMBRE_SERVICIO, COUNT(*) AS CANTIDAD_PRESTADA FROM REGISTRO_SERVICIOS WHERE FECHA_PRESTACION BETWEEN ? AND ? GROUP BY NOMBRE_SERVICIO ORDER BY CANTIDAD_PRESTADA DESC LIMIT ?)
-	    resultados=mi_cursor.fetchall()
+	        mi_cursor.execute("""
+                           SELECT NOMBRE_SERVICIO, COUNT(*) AS CANTIDAD_PRESTADA 
+                           FROM REGISTRO_SERVICIOS 
+                           WHERE FECHA_PRESTACION BETWEEN ? AND ? 
+                           GROUP BY NOMBRE_SERVICIO 
+                           ORDER BY CANTIDAD_PRESTADA DESC LIMIT ?
+                           """, (fecha_inicial,fecha_final,cantidad_servicios))
+            resultados = mi_cursor.fetchall()
 
-
-	   if resultados:
-	       print(tabulate(registros, headers = ['Servicio','Cantidad prestada'], tablefmt = 'pretty'))
+	        if resultados:
+                print(tabulate(resultados, headers = ['Servicio','Cantidad prestada'], tablefmt = 'pretty'))
             else:
                 aviso('No se encontraron servicios', 20)
-
-   except Error as e:
+                
+    except sqlite3.Error as e:
         print(e)
     except Exception:
         print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
     finally:
         conn.close()
-
-    print('¿Desea exportar los registros encontrados? (Sí/No).')
+        
+    print('¿Desea exportar el reporte a Excel o CSV? (Sí/No).')
     respuesta = respuestaSINO()
 
     if respuesta == 'SI':
         guiones_separadores()
         print("Ingrese el número de la opción que desee realizar.")
-        print("1. Exportar a Excel.\n2. Exportar a CSV.\n3. Regresar al menú de reportes.")
-        respuesta = validarOpcionesNumericas(1, 3)
+        print("1. Exportar a Excel.\n2. Exportar a CSV.")
+        respuesta = validarOpcionesNumericas(1, 2)
 
         if respuesta in (1, 2):
             guiones_separadores()
-            fechaReporte = fechaActual().strftime("%d%m%Y")
-            nombre_archivo = f'ReporteServicioPorClave_{fechaReporte}'
+            fecha_inicial = fechaActual().strftime("%d%m%Y")
+            nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial}_{fecha_final}'
 
-            df = pd.DataFrame(registros, columns=['Clave servicio', 'Nombre servicio', 'Precio'])
+            df = pd.DataFrame(resultados, columns=['Servicio', 'Cantidad prestada'])
 
             if respuesta == 1:
                 nombre_archivo += '.xlsx'
@@ -1516,102 +1522,26 @@ def serviciosMasPrestados(ubicacion):
             else:
                 nombre_archivo += '.csv'
                 df.to_csv(nombre_archivo, index = False)
-            
+                
             aviso(f'Información exportada en {nombre_archivo} exitosamente', 15)
             indicarEnter()
     else:
         aviso('Información no exportada', 20)
         indicarEnter()
 
-
-           
-
-
-
-
-
-
-
-
-
-
-            mi_cursor.execute("SELECT * FROM SERVICIOS;")   
-            servicios = mi_cursor.fetchall()
-
-            if not servicios:
-                aviso("Es necesario tener al menos un servicio registrado para obtener una estadística", 15)
-                indicarEnter()
-                return 
-    except Error as e:
-        print(e)
-    except Exception:
-        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}.')
-    finally:
-        conn.close()
-            
-
-        elif opcion == 2:
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-        
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        elif opcion == 2:
-
-
-
+def solicitarFecha(mensaje):
+    while True:
+        fecha_str=input(f'{mensaje}: ')
+        try:
+            fecha=fechaActual().strptime(fecha_str,"%d%m%Y")
+            return fecha
+        except ValueError:
+            print("Formato de fecha incorrecto, por favor ingrese la fecha en formato (d/mm/aaaa)")
+
+     #FALTA HACER lmenu_estadisticas (fatima)
+
+
+    #elif opcion == 2:
 
 
 
