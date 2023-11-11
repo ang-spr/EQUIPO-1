@@ -140,7 +140,6 @@ def menuPrincipal():
         elif opcion == 3:
             menuServicios(ubicacion)
 
-
         elif opcion == 4:
             menuEstadisticas(ubicacion)
 #HACER AQUI MENU ESTADISTICOS FATIMA----------------------------------------
@@ -1444,7 +1443,142 @@ def menuEstadisticas(ubicacion):
 
         if opcion == 1:
             mostrarTitulo(ubicacion)
-           serviciosMasPrestados()
+            serviciosMasPrestados(ubicacion)
+
+        elif opcion == 2:
+            clientesMasNotas(ubicacion)
+
+        elif opcion == 3:
+            promedioMontoDeNotas(ubicacion)
+
+        else:
+            break
+
+        opcion = 0
+        limpiar_consola()
+        continue
+
+def serviciosMasPrestados(ubicacion):
+    if validarContinuarOpcion():
+        return
+    
+    try:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+            mi_cursor = conn.cursor()
+            cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')   ##NUEVA VARIABLE, como linea 1091
+            #if cantidad_servicios:
+            # #print("Cantidad de servicios encontrados")
+	        #else:
+            # #print("Ingrese números váidos")
+             
+	        fecha_inicial = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
+	        fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
+            while fecha_final < fecha_inicial:
+                print("La fecha debe ser igual o posterior a la fecha inicial")
+		fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
+
+	    mi_cursor.execute(SELECT NOMBRE_SERVICIO, COUNT(*) AS CANTIDAD_PRESTADA FROM REGISTRO_SERVICIOS WHERE FECHA_PRESTACION BETWEEN ? AND ? GROUP BY NOMBRE_SERVICIO ORDER BY CANTIDAD_PRESTADA DESC LIMIT ?)
+	    resultados=mi_cursor.fetchall()
+
+
+	   if resultados:
+	       print(tabulate(registros, headers = ['Servicio','Cantidad prestada'], tablefmt = 'pretty'))
+            else:
+                aviso('No se encontraron servicios', 20)
+
+   except Error as e:
+        print(e)
+    except Exception:
+        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+    finally:
+        conn.close()
+
+    print('¿Desea exportar los registros encontrados? (Sí/No).')
+    respuesta = respuestaSINO()
+
+    if respuesta == 'SI':
+        guiones_separadores()
+        print("Ingrese el número de la opción que desee realizar.")
+        print("1. Exportar a Excel.\n2. Exportar a CSV.\n3. Regresar al menú de reportes.")
+        respuesta = validarOpcionesNumericas(1, 3)
+
+        if respuesta in (1, 2):
+            guiones_separadores()
+            fechaReporte = fechaActual().strftime("%d%m%Y")
+            nombre_archivo = f'ReporteServicioPorClave_{fechaReporte}'
+
+            df = pd.DataFrame(registros, columns=['Clave servicio', 'Nombre servicio', 'Precio'])
+
+            if respuesta == 1:
+                nombre_archivo += '.xlsx'
+                df.to_excel(nombre_archivo, index = False)
+
+            else:
+                nombre_archivo += '.csv'
+                df.to_csv(nombre_archivo, index = False)
+            
+            aviso(f'Información exportada en {nombre_archivo} exitosamente', 15)
+            indicarEnter()
+    else:
+        aviso('Información no exportada', 20)
+        indicarEnter()
+
+
+           
+
+
+
+
+
+
+
+
+
+
+            mi_cursor.execute("SELECT * FROM SERVICIOS;")   
+            servicios = mi_cursor.fetchall()
+
+            if not servicios:
+                aviso("Es necesario tener al menos un servicio registrado para obtener una estadística", 15)
+                indicarEnter()
+                return 
+    except Error as e:
+        print(e)
+    except Exception:
+        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}.')
+    finally:
+        conn.close()
+            
+
+        elif opcion == 2:
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
         
             
 
@@ -1470,7 +1604,7 @@ def menuEstadisticas(ubicacion):
 
 
 
-            
+
 
 
 
