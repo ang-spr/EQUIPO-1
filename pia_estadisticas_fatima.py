@@ -1466,10 +1466,6 @@ def serviciosMasPrestados(ubicacion):
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
             cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')   ##NUEVA VARIABLE, como linea 1091
-            #if cantidad_servicios:
-            # #print("Cantidad de servicios encontrados")
-	        #else:
-            ##print("Ingrese números váidos")
              
 	        fecha_inicial = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
 	        fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
@@ -1564,7 +1560,8 @@ lmenu_principal = [('Opción', 'Descripción'),
               (1, 'Notas'),
               (2, 'Clientes'),
               (3, 'Servicios'),
-              (4, 'Salir')]
+              (4, 'Estadístcias'), #FATIMA: agregue estadísticas
+              (5, 'Salir')]
 
 lmenu_notas = [('Opción', 'Descripción'),
               (1, 'Registrar una nota'),
@@ -1580,8 +1577,10 @@ lmenu_notas_consultasYReportes = [('Opción', 'Descripción'),
 
 lmenu_clientes = [('Opción', 'Descripción'),
                        (1, 'Agregar un cliente'),
-                       (2, 'Consultas y reportes'),
-                       (3, 'Volver al menú principal')]
+                       (2, 'Suspender un cliente'),
+                       (3, 'Recuperar un cliente'),
+                       (4, 'Consultas y reportes'),
+                       (5, 'Volver al menú principal')]
 
 lmenu_clientes_consultasYReportes = [('Opción', 'Descripción'),
                        (1, 'Listado de clientes registrados'),
@@ -1596,8 +1595,10 @@ lmenu_clientes_consultasYReportes_listadoDeClientesRegistrados = [('Opción', 'D
 
 lmenu_servicios = [('Opción', 'Descripción'),
               (1, 'Agregar un servicio'),
-              (2, 'Consultas y reportes'),
-              (3, 'Volver al menú principal')]
+              (2, 'Suspender un servicio'),
+              (3, 'Recuperar un servicio'),
+              (4, 'Consultas y reportes'),
+              (5, 'Volver al menú principal')]
 
 lmenu_servicios_consultasYReportes = [('Opción', 'Descripción.'),
               (1, 'Búsqueda por clave de servicio'),
@@ -1609,6 +1610,13 @@ lmenu_servicios_consultasYReportes_listadoDeServicios = [('Opción', 'Descripci�
               (1, 'Orden por clave'),
               (2, 'Orden por nombre de servicio'),
               (3, 'Volver al menú anterior')]
+
+
+lmenu_estadisticas = [('Opción', 'Descripción'),   #Fatima: agregue el submenu de estadisticas 
+                (1, 'Servicios más prestados'),
+                (2, 'Clientes con más notas'),
+                (3, 'Promedio de los montos de las notas')]
+
 
 try:
     with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
@@ -1623,12 +1631,21 @@ try:
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS SERVICIOS \
                         (CLAVE_SERVICIO INTEGER PRIMARY KEY NOT NULL, NOMBRE_SERVICIO TEXT NOT NULL, \
                         COSTO_SERVICIO REAL NOT NULL);")
+        
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS DETALLE_NOTA \
                         (CLAVE_DETALLE INTEGER PRIMARY KEY NOT NULL, \
                         FOLIO INTEGER NOT NULL, \
                         CLAVE_SERVICIO INTEGER NOT NULL,  \
                         FOREIGN KEY (FOLIO) REFERENCES NOTAS(FOLIO), \
                         FOREIGN KEY (CLAVE_SERVICIO) REFERENCES SERVICIOS(CLAVE_SERVICIO));")
+        
+        mi_cursor.execute("CREATE TABLE IF NOT EXISTS ESTADISTICAS \
+                          (CLAVE)")
+
+
+        #Fatima: hacer tabla estadístcias (revisar que campos lleva)
+        
+
         
         print(f'{guiones(17)}Tablas creadas o cargadas exitosamente.{guiones(17)}')
 except Error as e:
