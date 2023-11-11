@@ -1465,16 +1465,21 @@ def serviciosMasPrestados(ubicacion):
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
+            
             cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')   ##NUEVA VARIABLE, como linea 1091
-             
-	        fecha_inicial = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
-	        fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
+            while cantidad_servicios < 1:
+                print("La cantidad debe ser al menos 1 servicio ")
+                cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')
+                
+                
+            fecha_inicial = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
+            fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
             
             while fecha_final < fecha_inicial:
                 print("La fecha debe ser igual o posterior a la fecha inicial")
-		    fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
-
-	        mi_cursor.execute("""
+		        fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
+                
+            mi_cursor.execute("""
                            SELECT NOMBRE_SERVICIO, COUNT(*) AS CANTIDAD_PRESTADA 
                            FROM REGISTRO_SERVICIOS 
                            WHERE FECHA_PRESTACION BETWEEN ? AND ? 
@@ -1482,11 +1487,15 @@ def serviciosMasPrestados(ubicacion):
                            ORDER BY CANTIDAD_PRESTADA DESC LIMIT ?
                            """, (fecha_inicial,fecha_final,cantidad_servicios))
             resultados = mi_cursor.fetchall()
-
-	        if resultados:
-                print(tabulate(resultados, headers = ['Servicio','Cantidad prestada'], tablefmt = 'pretty'))
-            else:
+            
+            if not resultados:
                 aviso('No se encontraron servicios', 20)
+                return
+            
+            print(tabulate(resultados, headers = ['Servicio','Cantidad prestada'], tablefmt = 'pretty'))   
+
+            #crear lista a partir de los resultados
+            lista_resultados = [(servicio, cantidad) for servicio, cantidad in resultados]             
                 
     except sqlite3.Error as e:
         print(e)
@@ -1495,6 +1504,9 @@ def serviciosMasPrestados(ubicacion):
     finally:
         conn.close()
         
+    #crear dataframe a partir de la lista resultados
+    df = pd.DataFrame(resultados, columns=['Servicio', 'Cantidad prestada'])
+    
     print('¿Desea exportar el reporte a Excel o CSV? (Sí/No).')
     respuesta = respuestaSINO()
 
@@ -1506,10 +1518,9 @@ def serviciosMasPrestados(ubicacion):
 
         if respuesta in (1, 2):
             guiones_separadores()
-            fecha_inicial = fechaActual().strftime("%d%m%Y")
-            nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial}_{fecha_final}'
-
-            df = pd.DataFrame(resultados, columns=['Servicio', 'Cantidad prestada'])
+            fecha_inicial_str = fecha_inicial.strftime("%d%m%Y")
+            fecha_final_str = fecha_final.strftime("%d%m%Y")
+            nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial_str}_{fecha_final_str}'
 
             if respuesta == 1:
                 nombre_archivo += '.xlsx'
@@ -1529,15 +1540,27 @@ def solicitarFecha(mensaje):
     while True:
         fecha_str=input(f'{mensaje}: ')
         try:
-            fecha=fechaActual().strptime(fecha_str,"%d%m%Y")
+            fecha = fechaActual().strptime(fecha_str,"%d%m%Y")
             return fecha
         except ValueError:
             print("Formato de fecha incorrecto, por favor ingrese la fecha en formato (d/mm/aaaa)")
 
-     #FALTA HACER lmenu_estadisticas (fatima)
+     
 
 
     #elif opcion == 2:
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1640,7 +1663,10 @@ try:
                         FOREIGN KEY (CLAVE_SERVICIO) REFERENCES SERVICIOS(CLAVE_SERVICIO));")
         
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS ESTADISTICAS \
-                          (CLAVE)")
+                          (CANTIDAD_SERVICIOS INTEGER NOT NULL, \
+                          CANTIDAD_CLIENTES INTEGER NOT NULL,\
+                          FECHA_INICIAL timestamp NOT NULL, \
+                          FECHA_FINAL timestamp NOT);") ##AQUI VOY
 
 
         #Fatima: hacer tabla estadístcias (revisar que campos lleva)
