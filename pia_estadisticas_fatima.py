@@ -1431,104 +1431,69 @@ def servicio_ordenadoNombre():
         aviso('Información no exportada', 20)
         indicarEnter()
 
-def suspenderServicio(ubicacion):   #FATIMA: suspenderServicio
+def suspenderServicio(ubicacion):   #FATIMA: suspenderServicio()
     if validarContinuarOpcion():
         return
-
-    print('Ingrese la clave del servicio a suspender: ')
-    clave_servicio_suspender= solicitarSoloNumeroEntero('Clave servicio: ')
     
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT COUNT(*) FROM SERVICIOS WHERE (CLAVE_SERVICIO_SUSPENDER = ?)", (clave_servicio_suspender,))
+            mi_cursor.execute("SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO FROM SERVICIOS WHERE ESTADO_SERVICIOS=1")
+            servicios_activos = mi_cursor.fetchall()
 
-            if not mi_cursor.fetchone()[0] > 0:
-                aviso("El servicio con la clave proporcionada no existe o ya fue suspendida.", 15)
+            if not servicios_activos:
+                aviso("No hay servicios activos para suspender.", 15)
                 indicarEnter()
                 return
             
-    except Error as e:
-        print(e)
-    except Exception:
-        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-    finally:
-        conn.close()
-    guiones_separadores()
+            print(tabulate(servicios_activos, headers=["Clave", "Servicio"], tablefmt='pretty'))
+
+            clave_servicio_suspender = solicitarSoloNumeroEntero('Ingrese la clave del servicio a suspender (0 para volver al menú anterior): ')
+            
+            if clave_servicio_suspender == 0:
+                return
     
-    try:
-        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-            mi_cursor = conn.cursor()
             mi_cursor.execute("""
                 SELECT 
-                    S.CLAVE_SERVICIO_SUSPENDER, 
-                    S.NOMBRE_SERVICIO,
-                    S.COSTO_SERVICIO
-                FROM SERVICIOS S
-                WHERE S.CLAVE_SERVICIO_SUSPENDER = ?;
+                    CLAVE_SERVICIO_SUSPENDER, 
+                    NOMBRE_SERVICIO,
+                    COSTO_SERVICIO
+                FROM SERVICIOS 
+                WHERE CLAVE_SERVICIO_SUSPENDER = ? AND ESTADO_SERVICIO = 1;
             """, (clave_servicio_suspender,))
             
             servicio_a_suspender = mi_cursor.fetchall()
 
-            if servicio_a_suspender:
-                print("Datos del servicio:")
-                print(tabulate([servicio_a_suspender], headers = ["Clave servicio", "Nombre servicio", "Costo servicio"], tablefmt = 'pretty'))
-            else:
-                print("No se encontró el servicio con la clave proporcionada")
+            if not servicio_a_suspender:
+                aviso("El servicio con la clave proporcionada no existe o ya fue suspendido.", 15)
                 indicarEnter()
-
                 return
-    
-    except sqlite3.Error as e:
-        print(e)
-        indicarEnter()
-        return
-    
-    except Exception:
-        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-        indicarEnter()
-        return
+            
+            print("Datos del servicio:")
+            print(tabulate(servicio_a_suspender, headers=["Clave servicio", "Nombre servicio", "Costo servicio"], tablefmt='pretty'))
+            
+            guiones_separadores()
+            print('¿Desea suspender el servicio? Confirme su respuesta (Sí/No).')
+            confirmarSuspender = respuestaSINO()
 
-    guiones_separadores()
-    print('¿Desea suspender el servicio? Confirme su respuesta (Sí/No).')
-    confirmarSuspender = respuestaSINO()
-
-    if confirmarSuspender == 'SI':
-        try:
-            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-                mi_cursor = conn.cursor()
+            if confirmarSuspender == 'SI':
                 mi_cursor.execute("UPDATE SERVICIOS SET ESTADO_SERVICIO = 0 WHERE CLAVE_SERVICIO_SUSPENDER = ?", (clave_servicio_suspender,))
                 aviso("El servicio ha sido suspendido.", 20)
-        except sqlite3.Error as e:
-            print(e)
+            else:
+                aviso("El servicio no fue suspendido")
+
             indicarEnter()
-            return 
-        except Exception:
+
+
+    except sqlite3.Error as e:
+        print(e)
+    except Exception:
             print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-            indicarEnter()
-            return
-        finally:
-            conn.close()
-    else:
-        aviso("El servicio no fue suspendido.", 20)
+    finally:
+        conn.close()
 
     indicarEnter()
     limpiar_consola()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1781,13 +1746,15 @@ try:
         mi_cursor = conn.cursor()
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS CLIENTES \
                         (CLAVE_CLIENTE INTEGER PRIMARY KEY NOT NULL, NOMBRE TEXT NOT NULL, \
-                        RFC TEXT NULL, CORREO_ELECTRONICO TEXT NOT NULL);")
+                        RFC TEXT NULL, ESTADO_CLIENTE INTEGER NOT NULL, \
+                        CORREO_ELECTRONICO TEXT NOT NULL);") #AGREGUE CAMPO ESTADO_CLIENTE Y ESTADO_SERVICIO
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS NOTAS \
                         (FOLIO INTEGER PRIMARY KEY NOT NULL, FECHA timestamp NOT NULL, \
                         CLAVE_CLIENTE INTEGER NOT NULL, MONTO_A_PAGAR REAL NOT NULL, ESTADO_NOTA INTEGER NOT NULL, \
                         FOREIGN KEY (CLAVE_CLIENTE) REFERENCES CLIENTES(CLAVE_CLIENTE));")
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS SERVICIOS \
                         (CLAVE_SERVICIO INTEGER PRIMARY KEY NOT NULL, NOMBRE_SERVICIO TEXT NOT NULL, \
+                        ESTADO_SERVICIO INTEGER NOT NULL, \
                         COSTO_SERVICIO REAL NOT NULL);")
         
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS DETALLE_NOTA \
