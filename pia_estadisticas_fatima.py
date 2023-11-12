@@ -1293,7 +1293,7 @@ def suspenderServicio():
             while True:
                 clave_servicio_suspender = solicitarSoloNumeroEntero('Clave')
                 if clave_servicio_suspender == 0:
-                    return
+                    return  
         
                 mi_cursor.execute("""SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO, COSTO_SERVICIO \
                                 FROM SERVICIOS WHERE CLAVE_SERVICIO = ? AND ESTADO_SERVICIO = 1;
@@ -1543,130 +1543,132 @@ def serviciosMasPrestados():
     if validarContinuarOpcion():
         return
     while True:
+        cantidad_servicios = solicitarSoloNumeroEntero("Ingrese la cantidad de servicios que desea consultar")
+        
+        print(guiones(35))
+        fecha_str = input(f'Fecha inicial: ').strip()
+
+        if fecha_str == "":
+            fecha_str = "01/01/2000"
+            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
+
         try:
-            cantidad_servicios = solicitarSoloNumeroEntero("Ingrese la cantidad de servicios que desea consultar")
+            fecha_inicial2= dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
             break
         except ValueError:
-            print('El valor no corresponde a lo solicitado.')
+            print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
+            continue
+    
+    print(guiones(35))
+    print("\nIngrese la fecha final en el formato (dd/mm/aaaa).")
+    while True:
+       fecha_str2= input("Fecha final: ").strip()
+       if fecha_str2 == "":
+            fecha_final2= fechaActual()
+            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
+            break
         
-        while True:
-            fecha_str = input(f'Fecha inicial: ').strip()
-
-            if fecha_str == "":
-                fecha_str = "01/01/2000"
-                aviso("La fecha inicial se asumió como 01/01/2000.", 0)
-
-            try:
-                fecha_inicial2= dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
-                break
-            except ValueError:
-                print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
-                continue
-
-        print("\nIngrese la fecha final en el formato (dd/mm/aaaa).")
-        while True:
-           fecha_str2= input("Fecha final: ").strip()
-
-           if fecha_str2 == "":
-                fecha_final2= fechaActual()
-                aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
-                break
-
+    while True:
         try:
             fecha_final2= dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
             if fecha_inicial2 <= fecha_final2:
                 break
             else:
-               print("\nLa fecha inicial no puede ser mayor que la fecha final. Ingrese fechas válidas.")
+                print("\nLa fecha inicial no puede ser mayor que la fecha final. Ingrese fechas válidas.")
         except ValueError:
                 print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
                 continue
                 
-        while not fecha_inicial2 or not fecha_final2 or fecha_final2 < fecha_inicial2:
-            print("\nAmbas fechas son necesarias y la fecha final debe ser igual o posterior a la fecha inicial. Por favor, ingrese ambas fechas.")
+    while not fecha_inicial2 or not fecha_final2 or fecha_final2 < fecha_inicial2:
+        print("\nAmbas fechas son necesarias y la fecha final debe ser igual o posterior a la fecha inicial. Por favor, ingrese ambas fechas.")
                 
-            fecha_str = input(f'Fecha inicial: ').strip()
-            if fecha_str == "":
-                fecha_str = "01/01/2000"
-                aviso("La fecha inicial se asumió como 01/01/2000.", 0)
+        fecha_str = input(f'Fecha inicial: ').strip()
+        if fecha_str == "":
+            fecha_str = "01/01/2000"
+            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
 
-            try:
-                fecha_inicial2 = dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
-            except ValueError:
-                print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
-                continue
+        try:
+            fecha_inicial2 = dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
+        except ValueError:
+            print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
+            continue
 
-            fecha_str2 = input("Fecha final: ").strip()
-            if fecha_str2 == "":
-                fecha_final2 = fechaActual()
-                aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
-                break
+        fecha_str2 = input("Fecha final: ").strip()
+        if fecha_str2 == "":
+            fecha_final2 = fechaActual()
+            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
+            break
 
-            try:
-                fecha_final2 = dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
-            except ValueError:
-                print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
-                continue
+        try:
+            fecha_final2 = dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
+        except ValueError:
+            print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
+            continue
             
-            try:
-                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-                    mi_cursor = conn.cursor()
+        try:
+            with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                mi_cursor = conn.cursor()
 
-                    while cantidad_servicios < 1:
-                        print("La cantidad debe ser al menos 1 servicio ")
-                        cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')
+                while cantidad_servicios < 1:
+                    print("La cantidad debe ser al menos 1 servicio ")
+                    cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')
 
-                    mi_cursor.execute("""
-                                SELECT S.NOMBRE_SERVICIO, COUNT(D.CLAVE_SERVICIO) AS "CANTIDAD"
-                                FROM DETALLES_NOTA D INNER JOIN  SERVICIO S ON D.CLAVE_SERVICIO = S.CLAVE_SERVICIO
-                                INNER JOIN NOTAS N ON N.FOLIO = D.FOLIO
-                                WHERE N.FECHA BETWEEN ? AND ? 
-                                GROU
-                                P BY S.CLAVE_SERVICIO
-                                ORDER BY CANTIDAD DESC
-                                LIMIT ? 
-                                """, (fecha_inicial2, fecha_final2, cantidad_servicios))
-                    resultados = mi_cursor.fetchall()
-                    
-                    if not resultados:
-                        aviso('No se encontraron servicios', 20)
-                        return
-            except sqlite3.Error as e:
-                print(e)
-            except Exception:
-                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-            finally:
-                conn.close()
-            if resultados:
-                df = pd.DataFrame(resultados, columns=['Servicio', 'Cantidad prestada'])
+                mi_cursor.execute("""
+                            SELECT S.NOMBRE_SERVICIO, COUNT(D.CLAVE_SERVICIO) AS "CANTIDAD"
+                            FROM DETALLES_NOTA D INNER JOIN  SERVICIO S ON D.CLAVE_SERVICIO = S.CLAVE_SERVICIO
+                            INNER JOIN NOTAS N ON N.FOLIO = D.FOLIO
+                            WHERE N.FECHA BETWEEN ? AND ? 
+                            GROUP BY S.CLAVE_SERVICIO
+                            ORDER BY CANTIDAD DESC
+                            LIMIT ?                                 """, (fecha_inicial2, fecha_final2, cantidad_servicios))
+                resultados = mi_cursor.fetchall()
 
-                print(tabulate(resultados, headers=['Servicio', 'Cantidad prestada'], tablefmt='pretty'))
-
-                print('¿Desea exportar el reporte a Excel o CSV? (Sí/No).')
-                respuesta = respuestaSINO()
-
-                if respuesta == 'SI':
-                    guiones_separadores()
-                    print("Ingrese el número de la opción que desee realizar.")
-                    print("1. Exportar a Excel.\n2. Exportar a CSV.")
-                    respuesta = validarOpcionesNumericas(1, 2)
-
-                    if respuesta in (1, 2):
-                        guiones_separadores()
-                        fecha_inicial_str = fecha_inicial2.strftime("%m_%d_%Y")
-                        fecha_final_str = fecha_final2.strftime("%m_%d_%Y")
-                        nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial_str}_{fecha_final_str}'
-
-                        if respuesta == 1:
-                            nombre_archivo += '.xlsx'
-                            df.to_excel(nombre_archivo, index=False)
-
-                        else:
-                            nombre_archivo += '.csv'
-                            df.to_csv(nombre_archivo, index=False)
+                if resultados:
+                    print("Servicios más presentados:")
+                    print(tabulate(resultados, headers=["Nombre del Servicio","Cantidad"], tablefmt='pretty'))
+                else:
+                    print("No se encontró la nota guardada.")
                             
-                        aviso(f'Información exportada en {nombre_archivo} exitosamente', 15)
-                        indicarEnter()
+                if not resultados:
+                    aviso('No se encontraron servicios', 20)
+                    return
+        except sqlite3.Error as e:
+            print(e)
+        except Exception:
+            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+        finally:
+            conn.close()
+
+        if resultados:
+            df = pd.DataFrame(resultados, columns=['Servicio', 'Cantidad prestada'])
+
+            print(tabulate(resultados, headers=['Servicio', 'Cantidad prestada'], tablefmt='pretty'))
+
+            print('¿Desea exportar el reporte a Excel o CSV? (Sí/No).')
+            respuesta = respuestaSINO()
+
+            if respuesta == 'SI':
+                guiones_separadores()
+                print("Ingrese el número de la opción que desee realizar.")
+                print("1. Exportar a Excel.\n2. Exportar a CSV.")
+                respuesta = validarOpcionesNumericas(1, 2)
+
+                if respuesta in (1, 2):
+                    guiones_separadores()
+                    fecha_inicial_str = fecha_inicial2.strftime("%m_%d_%Y")
+                    fecha_final_str = fecha_final2.strftime("%m_%d_%Y")
+                    nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial_str}_{fecha_final_str}'
+
+                    if respuesta == 1:
+                        nombre_archivo += '.xlsx'
+                        df.to_excel(nombre_archivo, index=False)
+
+                    else:
+                        nombre_archivo += '.csv'
+                        df.to_csv(nombre_archivo, index=False)
+                            
+                    aviso(f'Información exportada en {nombre_archivo} exitosamente', 15)
+                    indicarEnter()
             else:
                 aviso('No se encontraron resultados para exportar', 20)
 
