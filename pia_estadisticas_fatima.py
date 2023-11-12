@@ -142,7 +142,6 @@ def menuPrincipal():
 
         elif opcion == 4:
             menuEstadisticas(ubicacion)
-#HACER AQUI MENU ESTADISTICOS FATIMA----------------------------------------
         
         else:
             print('\n¿Está seguro que desea salir? (Sí/No)')
@@ -201,40 +200,38 @@ def notas_consultasYReportes(ubicacion):
         
         if opcion == 1:
             mostrarTitulo(ubicacion)
-            notas_ordenadoPeriodo()
-            limpiar_consola()
-            break
+            notas_consultaPorPeriodo()
 
         elif opcion == 2:
             mostrarTitulo(ubicacion)
-            notas_ordenadoFolio()
-            opcion = 0
+            notas_consultaPorFolio()
 
         else:
             break
 
+        opcion = 0
         limpiar_consola()
+        continue
 
 def registrarNota():
-    
     if validarContinuarOpcion():
         return
 
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT * FROM CLIENTES;")
+            mi_cursor.execute("SELECT CLAVE_CLIENTE, NOMBRE, RFC, CORREO_ELECTRONICO FROM CLIENTES WHERE ESTADO_CLIENTE = 1;")
             clientes = mi_cursor.fetchall()
-            mi_cursor.execute("SELECT * FROM SERVICIOS;")
+            mi_cursor.execute("SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO, COSTO_SERVICIO FROM SERVICIOS WHERE ESTADO_SERVICIO = 1;")
             servicios = mi_cursor.fetchall()
 
             if not clientes:
-                aviso("Es necesario tener al menos un cliente registrado para generar una nota.", 15)
+                aviso("Es necesario tener al menos un cliente registrado y activo para generar una nota.", 15)
                 indicarEnter()
                 return
             
             if not servicios:
-                aviso("Es necesario tener al menos un servicio registrado para generar una nota.", 15)
+                aviso("Es necesario tener al menos un servicio registrado y activo para generar una nota.", 15)
                 indicarEnter()
                 return 
     except Error as e:
@@ -244,7 +241,6 @@ def registrarNota():
     finally:
         conn.close()
 
-    #Fecha.
     print("Ingrese la fecha de la realización de la nota (dd/mm/aaaa).")
     while True:
         fecha_registro = input("Fecha: ").strip()
@@ -265,7 +261,7 @@ def registrarNota():
         try:
             with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
                 mi_cursor = conn.cursor()
-                mi_cursor.execute("SELECT COUNT(*) FROM CLIENTES WHERE CLAVE_CLIENTE = ?", (id_cliente,))
+                mi_cursor.execute("SELECT COUNT(*) FROM CLIENTES WHERE CLAVE_CLIENTE = ? AND ESTADO_CLIENTE = 1", (id_cliente,))
                 if mi_cursor.fetchone()[0] > 0:
                     break
                 else:
@@ -289,10 +285,10 @@ def registrarNota():
         try:
             with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
                 mi_cursor = conn.cursor()
-                mi_cursor.execute("SELECT COUNT(*) FROM SERVICIOS WHERE CLAVE_SERVICIO = ?", (id_servicio,))
+                mi_cursor.execute("SELECT COUNT(*) FROM SERVICIOS WHERE CLAVE_SERVICIO = ? AND ESTADO_SERVICIO = 1", (id_servicio,))
 
                 if mi_cursor.fetchone()[0] > 0:
-                    mi_cursor.execute("SELECT COSTO_SERVICIO FROM SERVICIOS WHERE CLAVE_SERVICIO = ?", (id_servicio,))
+                    mi_cursor.execute("SELECT COSTO_SERVICIO FROM SERVICIOS WHERE CLAVE_SERVICIO = ? AND ESTADO_SERVICIO = 1", (id_servicio,))
                     servicios_seleccionados.append(id_servicio)
                     costo_servicio = mi_cursor.fetchone()[0]
                     costos_servicios.append(costo_servicio)
@@ -520,28 +516,29 @@ def recuperarNota():
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db',
                             detect_types = sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES) as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT COUNT(*) FROM NOTAS WHERE ESTADO_NOTA = 0")
+            mi_cursor.execute("SELECT * FROM NOTAS WHERE ESTADO_NOTA = 0")
+            notas_canceladas = mi_cursor.fetchall()
 
-            if not mi_cursor.fetchone()[0] > 0:
+            if not notas_canceladas:
                 aviso("No existen notas canceladas para recuperar.", 15)
                 indicarEnter()
                 return
-            else:
-                print("Notas canceladas:")
-                mi_cursor.execute("""
-                    SELECT 
-                        N.FOLIO, 
-                        strftime('%d/%m/%Y', N.FECHA) AS 'FECHA',
-                        C.NOMBRE AS 'Cliente', 
-                        C.RFC, 
-                        C.CORREO_ELECTRONICO AS 'Correo Electrónico', 
-                        N.MONTO_A_PAGAR
-                    FROM NOTAS N
-                    INNER JOIN CLIENTES C ON N.CLAVE_CLIENTE = C.CLAVE_CLIENTE
-                    WHERE N.ESTADO_NOTA = 0;
-                """)
-                notasCanceladas = mi_cursor.fetchall()
-                print(tabulate(notasCanceladas, headers = ["Folio", "Fecha", "Cliente", "RFC", "Correo Electrónico", "Monto a Pagar"], tablefmt = 'pretty'))                
+            
+            print("Lista de notas canceladas:")
+            mi_cursor.execute("""
+                SELECT 
+                    N.FOLIO, 
+                    strftime('%d/%m/%Y', N.FECHA) AS 'FECHA',
+                    C.NOMBRE AS 'Cliente', 
+                    C.RFC, 
+                    C.CORREO_ELECTRONICO AS 'Correo Electrónico', 
+                    N.MONTO_A_PAGAR
+                FROM NOTAS N
+                INNER JOIN CLIENTES C ON N.CLAVE_CLIENTE = C.CLAVE_CLIENTE
+                WHERE N.ESTADO_NOTA = 0;
+            """)
+            notasCanceladas = mi_cursor.fetchall()
+            print(tabulate(notasCanceladas, headers = ["Folio", "Fecha", "Cliente", "RFC", "Correo Electrónico", "Monto a Pagar"], tablefmt = 'pretty'))                
     except Error as e:
         print(e)
         indicarEnter()
@@ -619,7 +616,7 @@ def recuperarNota():
         indicarEnter()
         return
 
-def notas_ordenadoPeriodo():
+def notas_consultaPorPeriodo():
     if validarContinuarOpcion():
         return
 
@@ -664,7 +661,7 @@ def notas_ordenadoPeriodo():
                 SELECT N.FOLIO, strftime('%d/%m/%Y', N.FECHA) AS 'FECHA', C.NOMBRE, N.MONTO_A_PAGAR
                 FROM NOTAS N
                 JOIN CLIENTES C ON N.CLAVE_CLIENTE = C.CLAVE_CLIENTE
-                WHERE N.FECHA BETWEEN ? AND ?
+                WHERE (N.FECHA BETWEEN ? AND ?) AND N.ESTADO_NOTA = 1 
                 ORDER BY N.FECHA
             """, (fecha_inicial, fecha_fin))
             registros = mi_cursor.fetchall()
@@ -720,7 +717,7 @@ def notas_ordenadoPeriodo():
         aviso('Información no exportada', 20)
         indicarEnter()
 
-def notas_ordenadoFolio():
+def notas_consultaPorFolio():
     if validarContinuarOpcion():
         return
     
@@ -728,7 +725,6 @@ def notas_ordenadoFolio():
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db',
                              detect_types = sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES) as conn:
             mi_cursor = conn.cursor()
-            print('Ingrese el folio de la nota a buscar:')
             mi_cursor.execute("""
                 SELECT FOLIO, strftime('%d/%m/%Y', FECHA) AS 'FECHA', C.NOMBRE
                 FROM NOTAS N
@@ -738,6 +734,7 @@ def notas_ordenadoFolio():
             """)
             notas_ordenadas = mi_cursor.fetchall()
             if notas_ordenadas:
+                print('Ingrese el folio de la nota a buscar:')
                 print(tabulate(notas_ordenadas, headers=["Folio", "Fecha", "Nombre del Cliente"], tablefmt='pretty'))
             else:
                 aviso("No hay notas disponibles en el sistema.", 15)
@@ -841,6 +838,14 @@ def menuClientes(ubicacion):
             registrarCliente()
 
         elif opcion == 2:
+            mostrarTitulo(ubicacion)
+            #AQUÍ DEBE IR LA FUNCIÓN SUSPENDER CLIENTE
+
+        elif opcion == 3:
+            mostrarTitulo(ubicacion)
+            #AQUÍ DEBE IR LA FUNCIÓN RECUPERAR CLIENTE
+
+        elif opcion == 4:
             clientes_consultasYReportes(ubicacion)
 
         else:
@@ -849,56 +854,6 @@ def menuClientes(ubicacion):
         opcion = 0
         limpiar_consola()
         continue
-
-def clientes_consultasYReportes(ubicacion):
-    ubicacionOriginal = ubicacion.copy()
-    opcion = 0
-
-    while True:
-        ubicacion = ubicacionOriginal.copy()
-        if opcion == 0:
-            opcion, ubicacion = mostrarYValidarMenu(ubicacion, opcion, lmenu_clientes_consultasYReportes)
-
-        if opcion == 1:
-            clientes_consultasYReportes_listadoDeClientesRegistrados(ubicacion)
-
-        elif opcion == 2:
-            mostrarTitulo(ubicacion)
-            clientes_busquedaClave()
-
-        elif opcion == 3:
-            mostrarTitulo(ubicacion)
-            clientes_busquedaNombre()
-
-        else:
-            break
-
-        opcion = 0
-        limpiar_consola()
-        continue
-
-def clientes_consultasYReportes_listadoDeClientesRegistrados(ubicacion):
-    ubicacionOriginal = ubicacion.copy()
-    opcion = 0
-
-    while True:
-        ubicacion = ubicacionOriginal.copy()
-        if opcion == 0:
-            opcion, ubicacion = mostrarYValidarMenu(ubicacion, opcion, lmenu_clientes_consultasYReportes_listadoDeClientesRegistrados)
-
-        if opcion == 1:
-            mostrarTitulo(ubicacion)
-            clientes_ordenadoClave()
-
-        elif opcion == 2:
-            mostrarTitulo(ubicacion)
-            clientes_ordenadoNombre()
-
-        else:
-            break
-
-        limpiar_consola()
-        break
 
 def registrarCliente():
     if validarContinuarOpcion():
@@ -960,11 +915,12 @@ def registrarCliente():
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            datos_clientes = (nombre_cliente, rfc, mail)
-            mi_cursor.execute("INSERT INTO CLIENTES(NOMBRE, RFC, CORREO_ELECTRONICO)\
-            VALUES (?, ?, ?)", datos_clientes)
+            estadoCliente = 1
+            datos_clientes = (nombre_cliente, rfc, mail, estadoCliente)
+            mi_cursor.execute("INSERT INTO CLIENTES(NOMBRE, RFC, CORREO_ELECTRONICO, ESTADO_CLIENTE)\
+            VALUES (?, ?, ?, ?)", datos_clientes)
 
-            aviso('Cliente registado correctamente', 20)
+            aviso('Cliente registado correctamente', 15)
             indicarEnter()
     except Error as e:
         print(e)
@@ -975,7 +931,58 @@ def registrarCliente():
         indicarEnter()
         return
     finally:
-        conn.close()     
+        conn.close() 
+
+def clientes_consultasYReportes(ubicacion):
+    ubicacionOriginal = ubicacion.copy()
+    opcion = 0
+
+    while True:
+        ubicacion = ubicacionOriginal.copy()
+        if opcion == 0:
+            opcion, ubicacion = mostrarYValidarMenu(ubicacion, opcion, lmenu_clientes_consultasYReportes)
+
+        if opcion == 1:
+            clientes_consultasYReportes_listadoDeClientesRegistrados(ubicacion)
+
+        elif opcion == 2:
+            mostrarTitulo(ubicacion)
+            clientes_busquedaClave()
+
+        elif opcion == 3:
+            mostrarTitulo(ubicacion)
+            clientes_busquedaNombre()
+
+        else:
+            break
+
+        opcion = 0
+        limpiar_consola()
+        continue
+
+def clientes_consultasYReportes_listadoDeClientesRegistrados(ubicacion):
+    ubicacionOriginal = ubicacion.copy()
+    opcion = 0
+
+    while True:
+        ubicacion = ubicacionOriginal.copy()
+        if opcion == 0:
+            opcion, ubicacion = mostrarYValidarMenu(ubicacion, opcion, lmenu_clientes_consultasYReportes_listadoDeClientesRegistrados)
+
+        if opcion == 1:
+            mostrarTitulo(ubicacion)
+            clientes_ordenadoClave()
+
+        elif opcion == 2:
+            mostrarTitulo(ubicacion)
+            clientes_ordenadoNombre()
+
+        else:
+            break
+
+        opcion = 0
+        limpiar_consola()
+        continue
 
 def clientes_ordenadoClave():
     if validarContinuarOpcion():
@@ -984,7 +991,7 @@ def clientes_ordenadoClave():
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT * FROM CLIENTES ORDER BY CLAVE_CLIENTE")
+            mi_cursor.execute("SELECT * FROM CLIENTES WHERE ESTADO_CLIENTE = 1 ORDER BY CLAVE_CLIENTE")
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1037,7 +1044,7 @@ def clientes_ordenadoNombre():
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT * FROM CLIENTES ORDER BY NOMBRE")
+            mi_cursor.execute("SELECT * FROM CLIENTES WHERE ESTADO_CLIENTE = 1 ORDER BY NOMBRE")
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1094,7 +1101,7 @@ def clientes_busquedaClave():
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
             valores = {"CLAVE_CLIENTE":clave_a_buscar}
-            mi_cursor.execute("SELECT * FROM CLIENTES WHERE CLAVE_CLIENTE = :CLAVE_CLIENTE", valores)
+            mi_cursor.execute("SELECT * FROM CLIENTES WHERE (CLAVE_CLIENTE = :CLAVE_CLIENTE) AND ESTADO_CLIENTE = 1", valores)
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1123,7 +1130,7 @@ def clientes_busquedaNombre():
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
             valores = {"NOMBRE":nombre_a_buscar}
-            mi_cursor.execute("SELECT * FROM CLIENTES WHERE NOMBRE = :NOMBRE", valores)
+            mi_cursor.execute("SELECT * FROM CLIENTES WHERE (NOMBRE = :NOMBRE) AND ESTADO_CLIENTE = 1", valores)
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1153,10 +1160,12 @@ def menuServicios(ubicacion):
             agregarServicio()
             
         elif opcion == 2:
-            suspenderServicio(ubicacion) #HACER AQUI SUSPENDER SERVICIO FATIMA
+            mostrarTitulo(ubicacion)
+            suspenderServicio()
             
         elif opcion == 3:
-            recuperarServicio(ubicacion) #HAMBLETON
+            mostrarTitulo(ubicacion)
+            #recuperarServicio() #------------------------------------------------------HAMBLETON
 
         elif opcion ==4:
             servicios_consultasYReportes(ubicacion)
@@ -1180,10 +1189,13 @@ def servicios_consultasYReportes(ubicacion):
         if opcion == 1:
             mostrarTitulo(ubicacion)
             servicios_busquedaClave()
+            #--------------------------------------------------------SI ELIGE REGRESAR AL MENÚ DE CONSULTAS Y VALORES DEBE DAR UN RETURN
+            #SE ME OCURRE QUE REGRESE UN VALOR FALSO O VERDADERO, SI ES VERADERO LO REGRESA AL MENÚ REGISTRO
 
         elif opcion == 2:
             mostrarTitulo(ubicacion)
             servicio_busquedaNombre()
+            #-------------------------------------------------------------------------------AQUÍ TAMBIÉN
 
         elif opcion == 3:
             servicios_consultasYReportes_listadoDeServicios(ubicacion)
@@ -1244,18 +1256,87 @@ def agregarServicio():
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            datos_servicios = (servicio, precio)
-            mi_cursor.execute("INSERT INTO SERVICIOS(NOMBRE_SERVICIO, COSTO_SERVICIO)\
-            VALUES (?, ?)", datos_servicios)
+            estadoServicio = 1
+            datos_servicios = (servicio, precio, estadoServicio)
+            mi_cursor.execute("INSERT INTO SERVICIOS(NOMBRE_SERVICIO, COSTO_SERVICIO, ESTADO_SERVICIO)\
+            VALUES (?, ?, ?)", datos_servicios)
 
             aviso('Servicio registado correctamente', 20)
             indicarEnter()
     except Error as e:
+        input(e)
+    except Exception:
+        input(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+    finally:
+        conn.close()
+
+def suspenderServicio():
+    if validarContinuarOpcion():
+        return
+    
+    try:
+        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+            mi_cursor = conn.cursor()
+            mi_cursor.execute("SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO FROM SERVICIOS WHERE ESTADO_SERVICIO = 1")
+            servicios_activos = mi_cursor.fetchall()
+
+            if not servicios_activos:
+                aviso("No hay servicios activos para suspender.", 15)
+                indicarEnter()
+                return
+            
+            print("Lista de servicios activos:")
+            print(tabulate(servicios_activos, headers = ["Clave", "Servicio"], tablefmt = 'pretty'))
+
+            print('\nIngrese la clave del servicio a suspender o 0 para volver al menú anterior.')
+
+            while True:
+                clave_servicio_suspender = solicitarSoloNumeroEntero('Clave')
+                if clave_servicio_suspender == 0:
+                    return
+        
+                mi_cursor.execute("""SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO, COSTO_SERVICIO \
+                                FROM SERVICIOS WHERE CLAVE_SERVICIO = ? AND ESTADO_SERVICIO = 1;
+                                """, (clave_servicio_suspender,))
+
+                servicio_a_suspender = mi_cursor.fetchall()
+
+                if not servicio_a_suspender:
+                    print("\nIngrese una clave válida de los servicios presentados o 0 para regresar al menú anterior.")
+                    continue
+                guiones_separadores()
+
+                print("Datos del servicio:")
+                print(tabulate(servicio_a_suspender, headers = ["Clave del servicio", "Nombre servicio", "Costo servicio"], tablefmt = 'pretty'))
+                break
+            guiones_separadores()
+
+            print('¿Desea suspender el servicio? Confirme su respuesta (Sí/No).')
+            confirmarSuspender = respuestaSINO()
+
+            if confirmarSuspender == 'SI':
+                mi_cursor.execute("UPDATE SERVICIOS SET ESTADO_SERVICIO = 0 WHERE CLAVE_SERVICIO = ?", (clave_servicio_suspender,))
+                aviso("El servicio ha sido suspendido correctamente.", 20)
+            else:
+                aviso("El servicio no fue suspendido.", 20)
+
+    except sqlite3.Error as e:
         print(e)
     except Exception:
         print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
     finally:
         conn.close()
+    indicarEnter()
+
+
+
+
+
+#---------------------------------------------------AQUÍ DEBE ESTAR LA FUNCIÓN DE RECUPERAR SERVICIO
+
+
+
+
 
 def servicios_busquedaClave():
     if validarContinuarOpcion():
@@ -1264,21 +1345,20 @@ def servicios_busquedaClave():
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            print("Ingrese la clave a buscar.")
-            mi_cursor.execute("SELECT CLAVE_SERVICIO,NOMBRE_SERVICIO FROM SERVICIOS")
+            mi_cursor.execute("SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO FROM SERVICIOS WHERE ESTADO_SERVICIO = 1")
             servicio = mi_cursor.fetchall()
 
-            if servicio:
-                print(tabulate(servicio, headers=["Clave","Servicio"], tablefmt='pretty'))
-            else:
+            if not servicio:
                 aviso("No hay notas disponibles en el sistema.", 15)
                 indicarEnter()
                 return
             
+            print("Ingrese la clave a buscar.")
+            print(tabulate(servicio, headers=["Clave","Servicio"], tablefmt='pretty'))
             clave_a_buscar = solicitarSoloNumeroEntero('Clave')
 
             valores = {"CLAVE_SERVICIO":clave_a_buscar}
-            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE CLAVE_SERVICIO = :CLAVE_SERVICIO", valores)
+            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE (CLAVE_SERVICIO = :CLAVE_SERVICIO) AND ESTADO_SERVICIO = 1", valores)
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1307,7 +1387,7 @@ def servicio_busquedaNombre():
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
             valores = {"NOMBRE_SERVICIO":nombre_a_buscar}
-            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE NOMBRE_SERVICIO = :NOMBRE_SERVICIO", valores)
+            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE (NOMBRE_SERVICIO = :NOMBRE_SERVICIO) AND ESTADO_SERVICIO = 1", valores)
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1330,7 +1410,7 @@ def servicio_ordenadoClave():
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT * FROM SERVICIOS ORDER BY CLAVE_SERVICIO")
+            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE ESTADO_SERVICIO = 1 ORDER BY CLAVE_SERVICIO")
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1384,7 +1464,7 @@ def servicio_ordenadoNombre():
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT * FROM SERVICIOS ORDER BY NOMBRE_SERVICIO")
+            mi_cursor.execute("SELECT * FROM SERVICIOS WHERE ESTADO_SERVICIO = 1 ORDER BY NOMBRE_SERVICIO")
             registros = mi_cursor.fetchall()
 
             if registros:
@@ -1431,75 +1511,6 @@ def servicio_ordenadoNombre():
         aviso('Información no exportada', 20)
         indicarEnter()
 
-def suspenderServicio(ubicacion):   #FATIMA: suspenderServicio()
-    if validarContinuarOpcion():
-        return
-    
-    try:
-        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-            mi_cursor = conn.cursor()
-            mi_cursor.execute("SELECT CLAVE_SERVICIO, NOMBRE_SERVICIO FROM SERVICIOS WHERE ESTADO_SERVICIOS=1")
-            servicios_activos = mi_cursor.fetchall()
-
-            if not servicios_activos:
-                aviso("No hay servicios activos para suspender.", 15)
-                indicarEnter()
-                return
-            
-            print(tabulate(servicios_activos, headers=["Clave", "Servicio"], tablefmt='pretty'))
-
-            clave_servicio_suspender = solicitarSoloNumeroEntero('Ingrese la clave del servicio a suspender (0 para volver al menú anterior): ')
-            
-            if clave_servicio_suspender == 0:
-                return
-    
-            mi_cursor.execute("""
-                SELECT 
-                    CLAVE_SERVICIO_SUSPENDER, 
-                    NOMBRE_SERVICIO,
-                    COSTO_SERVICIO
-                FROM SERVICIOS 
-                WHERE CLAVE_SERVICIO_SUSPENDER = ? AND ESTADO_SERVICIO = 1;
-            """, (clave_servicio_suspender,))
-            
-            servicio_a_suspender = mi_cursor.fetchall()
-
-            if not servicio_a_suspender:
-                aviso("El servicio con la clave proporcionada no existe o ya fue suspendido.", 15)
-                indicarEnter()
-                return
-            
-            print("Datos del servicio:")
-            print(tabulate(servicio_a_suspender, headers=["Clave servicio", "Nombre servicio", "Costo servicio"], tablefmt='pretty'))
-            
-            guiones_separadores()
-            print('¿Desea suspender el servicio? Confirme su respuesta (Sí/No).')
-            confirmarSuspender = respuestaSINO()
-
-            if confirmarSuspender == 'SI':
-                mi_cursor.execute("UPDATE SERVICIOS SET ESTADO_SERVICIO = 0 WHERE CLAVE_SERVICIO_SUSPENDER = ?", (clave_servicio_suspender,))
-                aviso("El servicio ha sido suspendido.", 20)
-            else:
-                aviso("El servicio no fue suspendido")
-
-            indicarEnter()
-
-
-    except sqlite3.Error as e:
-        print(e)
-    except Exception:
-            print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-    finally:
-        conn.close()
-
-    indicarEnter()
-    limpiar_consola()
-
-
-
-
-
-##AQUI EMPECE YO FATIMA (MENU ESTADISTICAS)
 def menuEstadisticas(ubicacion):
     ubicacionOriginal = ubicacion.copy()
     opcion = 0
@@ -1511,13 +1522,15 @@ def menuEstadisticas(ubicacion):
 
         if opcion == 1:
             mostrarTitulo(ubicacion)
-            serviciosMasPrestados(ubicacion)
+            serviciosMasPrestados()
 
         elif opcion == 2:
-            clientesMasNotas(ubicacion)
+            mostrarTitulo(ubicacion)
+            clientesMasNotas()
 
         elif opcion == 3:
-            promedioMontoDeNotas(ubicacion)
+            mostrarTitulo(ubicacion)
+            promedioMontoDeNotas()
 
         else:
             break
@@ -1526,164 +1539,149 @@ def menuEstadisticas(ubicacion):
         limpiar_consola()
         continue
 
-def serviciosMasPrestados(ubicacion):
+def serviciosMasPrestados():
     if validarContinuarOpcion():
         return
-    
-    print("Ingrese la fecha inicial del periodo a reportar en el formato (dd/mm/aaaa) ")
     while True:
-        fecha_str = input(f'Fecha inicial: ').strip()
-
-        if fecha_str == "":
-            fecha_str = "01/01/2000"
-            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
-
         try:
-            fecha_inicial2= dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
+            cantidad_servicios = solicitarSoloNumeroEntero("Ingrese la cantidad de servicios que desea consultar")
             break
         except ValueError:
-            print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
-            continue
+            print('El valor no corresponde a lo solicitado.')
+        
+        while True:
+            fecha_str = input(f'Fecha inicial: ').strip()
 
-    print("\nIngrese la fecha final en el formato (dd/mm/aaaa).")
-    while True:
-        fecha_str2= input("Fecha final: ").strip()
+            if fecha_str == "":
+                fecha_str = "01/01/2000"
+                aviso("La fecha inicial se asumió como 01/01/2000.", 0)
 
-        if fecha_str2 == "":
-            fecha_final2= fechaActual()
-            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
-            break
+            try:
+                fecha_inicial2= dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
+                break
+            except ValueError:
+                print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
+                continue
+
+        print("\nIngrese la fecha final en el formato (dd/mm/aaaa).")
+        while True:
+           fecha_str2= input("Fecha final: ").strip()
+
+           if fecha_str2 == "":
+                fecha_final2= fechaActual()
+                aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
+                break
 
         try:
             fecha_final2= dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
             if fecha_inicial2 <= fecha_final2:
                 break
             else:
-                print("\nLa fecha inicial no puede ser mayor que la fecha final. Ingrese fechas válidas.")
+               print("\nLa fecha inicial no puede ser mayor que la fecha final. Ingrese fechas válidas.")
         except ValueError:
-            print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
-            continue
-        
-    while not fecha_inicial2 or not fecha_final2 or fecha_final2 < fecha_inicial2:
-        print("\nAmbas fechas son necesarias y la fecha final debe ser igual o posterior a la fecha inicial. Por favor, ingrese ambas fechas.")
-        
-        
-        fecha_str = input(f'Fecha inicial: ').strip()
-        if fecha_str == "":
-            fecha_str = "01/01/2000"
-            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
-
-        try:
-            fecha_inicial2 = dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
-        except ValueError:
-            print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
-            continue
-
-        fecha_str2 = input("Fecha final: ").strip()
-        if fecha_str2 == "":
-            fecha_final2 = fechaActual()
-            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
-            break
-
-        try:
-            fecha_final2 = dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
-        except ValueError:
-            print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
-            continue
-    
-    try:
-        with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
-            mi_cursor = conn.cursor()
-            
-            cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')   ##NUEVA VARIABLE, como linea 1091
-            while cantidad_servicios < 1:
-                print("La cantidad debe ser al menos 1 servicio ")
-                cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')
-    
-            mi_cursor.execute("""
-                           SELECT NOMBRE_SERVICIO, COUNT(*) AS CANTIDAD_PRESTADA 
-                           FROM REGISTRO_SERVICIOS 
-                           WHERE FECHA_PRESTACION BETWEEN ? AND ? 
-                           GROUP BY NOMBRE_SERVICIO 
-                           ORDER BY CANTIDAD_PRESTADA DESC LIMIT ?
-                           """, (fecha_inicial2,fecha_final2,cantidad_servicios))
-            resultados = mi_cursor.fetchall()
-            
-            if not resultados:
-                aviso('No se encontraron servicios', 20)
-                return
-            
-            print(tabulate(resultados, headers = ['Servicio','Cantidad prestada'], tablefmt = 'pretty'))   
-
-            #crear lista a partir de los resultados
-            lista_resultados = [(servicio, cantidad) for servicio, cantidad in resultados]             
+                print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
+                continue
                 
-    except sqlite3.Error as e:
-        print(e)
-    except Exception:
-        print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
-    finally:
-        conn.close()
-        
-    #crear dataframe a partir de la lista resultados
-    df = pd.DataFrame(resultados, columns=['Servicio', 'Cantidad prestada'])
-    
-    print('¿Desea exportar el reporte a Excel o CSV? (Sí/No).')
-    respuesta = respuestaSINO()
+        while not fecha_inicial2 or not fecha_final2 or fecha_final2 < fecha_inicial2:
+            print("\nAmbas fechas son necesarias y la fecha final debe ser igual o posterior a la fecha inicial. Por favor, ingrese ambas fechas.")
+                
+            fecha_str = input(f'Fecha inicial: ').strip()
+            if fecha_str == "":
+                fecha_str = "01/01/2000"
+                aviso("La fecha inicial se asumió como 01/01/2000.", 0)
 
-    if respuesta == 'SI':
-        guiones_separadores()
-        print("Ingrese el número de la opción que desee realizar.")
-        print("1. Exportar a Excel.\n2. Exportar a CSV.")
-        respuesta = validarOpcionesNumericas(1, 2)
+            try:
+                fecha_inicial2 = dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
+            except ValueError:
+                print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
+                continue
 
-        if respuesta in (1, 2):
-            guiones_separadores()
-            fecha_inicial_str = fecha_inicial2.strftime("%d%m%Y")
-            fecha_final_str = fecha_final2.strftime("%d%m%Y")
-            nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial_str}_{fecha_final_str}'
+            fecha_str2 = input("Fecha final: ").strip()
+            if fecha_str2 == "":
+                fecha_final2 = fechaActual()
+                aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
+                break
 
-            if respuesta == 1:
-                nombre_archivo += '.xlsx'
-                df.to_excel(nombre_archivo, index = False)
+            try:
+                fecha_final2 = dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
+            except ValueError:
+                print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
+                continue
+            
+            try:
+                with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
+                    mi_cursor = conn.cursor()
 
+                    while cantidad_servicios < 1:
+                        print("La cantidad debe ser al menos 1 servicio ")
+                        cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')
+
+                    mi_cursor.execute("""
+                                SELECT S.NOMBRE_SERVICIO, COUNT(D.CLAVE_SERVICIO) AS "CANTIDAD"
+                                FROM DETALLES_NOTA D INNER JOIN  SERVICIO S ON D.CLAVE_SERVICIO = S.CLAVE_SERVICIO
+                                INNER JOIN NOTAS N ON N.FOLIO = D.FOLIO
+                                WHERE N.FECHA BETWEEN ? AND ? 
+                                GROU
+                                P BY S.CLAVE_SERVICIO
+                                ORDER BY CANTIDAD DESC
+                                LIMIT ? 
+                                """, (fecha_inicial2, fecha_final2, cantidad_servicios))
+                    resultados = mi_cursor.fetchall()
+                    
+                    if not resultados:
+                        aviso('No se encontraron servicios', 20)
+                        return
+            except sqlite3.Error as e:
+                print(e)
+            except Exception:
+                print(f'Se produjo el siguiente error: {sys.exc_info()[0]}')
+            finally:
+                conn.close()
+            if resultados:
+                df = pd.DataFrame(resultados, columns=['Servicio', 'Cantidad prestada'])
+
+                print(tabulate(resultados, headers=['Servicio', 'Cantidad prestada'], tablefmt='pretty'))
+
+                print('¿Desea exportar el reporte a Excel o CSV? (Sí/No).')
+                respuesta = respuestaSINO()
+
+                if respuesta == 'SI':
+                    guiones_separadores()
+                    print("Ingrese el número de la opción que desee realizar.")
+                    print("1. Exportar a Excel.\n2. Exportar a CSV.")
+                    respuesta = validarOpcionesNumericas(1, 2)
+
+                    if respuesta in (1, 2):
+                        guiones_separadores()
+                        fecha_inicial_str = fecha_inicial2.strftime("%m_%d_%Y")
+                        fecha_final_str = fecha_final2.strftime("%m_%d_%Y")
+                        nombre_archivo = f'ReporteServiciosMasPrestados_{fecha_inicial_str}_{fecha_final_str}'
+
+                        if respuesta == 1:
+                            nombre_archivo += '.xlsx'
+                            df.to_excel(nombre_archivo, index=False)
+
+                        else:
+                            nombre_archivo += '.csv'
+                            df.to_csv(nombre_archivo, index=False)
+                            
+                        aviso(f'Información exportada en {nombre_archivo} exitosamente', 15)
+                        indicarEnter()
             else:
-                nombre_archivo += '.csv'
-                df.to_csv(nombre_archivo, index = False)
-                
-            aviso(f'Información exportada en {nombre_archivo} exitosamente', 15)
-            indicarEnter()
-    else:
-        aviso('Información no exportada', 20)
-        indicarEnter()
-
-    
-##AQUI ME QUEDE SEGUIR MODIFICANDO
-
-     
-
-def clientesMasNotas(ubicacion):
-    break
+                aviso('No se encontraron resultados para exportar', 20)
 
 
-def promedioMontoDeNotas(ubicacion):
-    break
+def clientesMasNotas():
+    print("")
 
-
-
-
-
-
-
-
-
-
+def promedioMontoDeNotas():
+    print("")
 
 lmenu_principal = [('Opción', 'Descripción'),
               (1, 'Notas'),
               (2, 'Clientes'),
               (3, 'Servicios'),
-              (4, 'Estadístcias'), #FATIMA: agregue estadísticas
+              (4, 'Estadísticas'),
               (5, 'Salir')]
 
 lmenu_notas = [('Opción', 'Descripción'),
@@ -1734,12 +1732,11 @@ lmenu_servicios_consultasYReportes_listadoDeServicios = [('Opción', 'Descripci�
               (2, 'Orden por nombre de servicio'),
               (3, 'Volver al menú anterior')]
 
-
-lmenu_estadisticas = [('Opción', 'Descripción'),   #Fatima: agregue el submenu de estadisticas 
+lmenu_estadisticas = [('Opción', 'Descripción'),
                 (1, 'Servicios más prestados'),
                 (2, 'Clientes con más notas'),
-                (3, 'Promedio de los montos de las notas')]
-
+                (3, 'Promedio de los montos de las notas'),
+                (4, 'Volver al menú principal')]
 
 try:
     with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
@@ -1747,7 +1744,7 @@ try:
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS CLIENTES \
                         (CLAVE_CLIENTE INTEGER PRIMARY KEY NOT NULL, NOMBRE TEXT NOT NULL, \
                         RFC TEXT NULL, ESTADO_CLIENTE INTEGER NOT NULL, \
-                        CORREO_ELECTRONICO TEXT NOT NULL);") #AGREGUE CAMPO ESTADO_CLIENTE Y ESTADO_SERVICIO
+                        CORREO_ELECTRONICO TEXT NOT NULL);")
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS NOTAS \
                         (FOLIO INTEGER PRIMARY KEY NOT NULL, FECHA timestamp NOT NULL, \
                         CLAVE_CLIENTE INTEGER NOT NULL, MONTO_A_PAGAR REAL NOT NULL, ESTADO_NOTA INTEGER NOT NULL, \
@@ -1756,25 +1753,13 @@ try:
                         (CLAVE_SERVICIO INTEGER PRIMARY KEY NOT NULL, NOMBRE_SERVICIO TEXT NOT NULL, \
                         ESTADO_SERVICIO INTEGER NOT NULL, \
                         COSTO_SERVICIO REAL NOT NULL);")
-        
         mi_cursor.execute("CREATE TABLE IF NOT EXISTS DETALLE_NOTA \
                         (CLAVE_DETALLE INTEGER PRIMARY KEY NOT NULL, \
                         FOLIO INTEGER NOT NULL, \
                         CLAVE_SERVICIO INTEGER NOT NULL,  \
                         FOREIGN KEY (FOLIO) REFERENCES NOTAS(FOLIO), \
                         FOREIGN KEY (CLAVE_SERVICIO) REFERENCES SERVICIOS(CLAVE_SERVICIO));")
-        
-        mi_cursor.execute("CREATE TABLE IF NOT EXISTS ESTADISTICAS \
-                          (CANTIDAD_SERVICIOS INTEGER NOT NULL, \
-                          CANTIDAD_CLIENTES INTEGER NOT NULL,\
-                          FECHA_INICIAL timestamp NOT NULL, \
-                          FECHA_FINAL timestamp NOT);") ##AQUI VOY
-
-
-        #Fatima: hacer tabla estadístcias (revisar que campos lleva)
-        
-
-        
+                
         print(f'{guiones(17)}Tablas creadas o cargadas exitosamente.{guiones(17)}')
 except Error as e:
     print(e)
