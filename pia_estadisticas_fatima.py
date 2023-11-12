@@ -1565,6 +1565,67 @@ def serviciosMasPrestados(ubicacion):
     if validarContinuarOpcion():
         return
     
+    print("Ingrese la fecha inicial del periodo a reportar en el formato (dd/mm/aaaa) ")
+    while True:
+        fecha_str = input(f'Fecha inicial: ').strip()
+
+        if fecha_str == "":
+            fecha_str = "01/01/2000"
+            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
+
+        try:
+            fecha_inicial2= dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
+            break
+        except ValueError:
+            print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
+            continue
+
+    print("\nIngrese la fecha final en el formato (dd/mm/aaaa).")
+    while True:
+        fecha_str2= input("Fecha final: ").strip()
+
+        if fecha_str2 == "":
+            fecha_final2= fechaActual()
+            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
+            break
+
+        try:
+            fecha_final2= dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
+            if fecha_inicial2 <= fecha_final2:
+                break
+            else:
+                print("\nLa fecha inicial no puede ser mayor que la fecha final. Ingrese fechas válidas.")
+        except ValueError:
+            print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
+            continue
+        
+    while not fecha_inicial2 or not fecha_final2 or fecha_final2 < fecha_inicial2:
+        print("\nAmbas fechas son necesarias y la fecha final debe ser igual o posterior a la fecha inicial. Por favor, ingrese ambas fechas.")
+        
+        
+        fecha_str = input(f'Fecha inicial: ').strip()
+        if fecha_str == "":
+            fecha_str = "01/01/2000"
+            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
+
+        try:
+            fecha_inicial2 = dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
+        except ValueError:
+            print("\nIngrese una fecha inicial válida en formato (dd/mm/aaaa).")
+            continue
+
+        fecha_str2 = input("Fecha final: ").strip()
+        if fecha_str2 == "":
+            fecha_final2 = fechaActual()
+            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
+            break
+
+        try:
+            fecha_final2 = dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
+        except ValueError:
+            print("\nIngrese una fecha final válida en formato (dd/mm/aaaa).")
+            continue
+    
     try:
         with sqlite3.connect('EVIDENCIA_3_TALLER_MECANICO.db') as conn:
             mi_cursor = conn.cursor()
@@ -1573,15 +1634,7 @@ def serviciosMasPrestados(ubicacion):
             while cantidad_servicios < 1:
                 print("La cantidad debe ser al menos 1 servicio ")
                 cantidad_servicios = solicitarSoloNumeroEntero('Ingrese la cantidad de servicios que desea identificar:')
-                
-                
-            fecha_inicial2 = solicitarFecha("Fecha inicial del periodo a reportar (dd/mm/aaaa)")
-            fecha_final2 = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
-            
-            while fecha_final2 < fecha_inicial2:
-                print("La fecha debe ser igual o posterior a la fecha inicial")
-		        fecha_final = solicitarFecha("Fecha final del periodo a reportar (dd/mm/aaaa)")
-                
+    
             mi_cursor.execute("""
                            SELECT NOMBRE_SERVICIO, COUNT(*) AS CANTIDAD_PRESTADA 
                            FROM REGISTRO_SERVICIOS 
@@ -1639,42 +1692,7 @@ def serviciosMasPrestados(ubicacion):
         aviso('Información no exportada', 20)
         indicarEnter()
 
-    print("Ingrese la fecha inicial del periodo a reportar en el formato (dd/mm/aaaa) ")
-    while True:
-        fecha_str = input(f'Fecha inicial: ').strip()
-
-        if fecha_str == "":
-            fecha_str = "01/01/2000"
-            aviso("La fecha inicial se asumió como 01/01/2000.", 0)
-
-        try:
-            fecha_inicial2= dt.datetime.strptime(fecha_str, "%d/%m/%Y").date()
-            break
-        except ValueError:
-            print("\nIngrese una fecha inicial válida en formato dd/mm/aaaa.")
-            continue
-
-    print("\nIngresa la fecha final en el formato (dd/mm/aaaa).")
-    while True:
-        fecha_str2= input("Fecha final: ").strip()
-
-        if fecha_str2 == "":
-            fecha_final2= fechaActual()
-            aviso(f"La fecha final se asumió como la actual: {fecha_final2.strftime('%d/%m/%Y')}.", 0)
-            break
-
-        try:
-            fecha_final2= dt.datetime.strptime(fecha_str2, "%d/%m/%Y").date()
-            if fecha_inicial2 <= fecha_final2:
-                break
-            else:
-                print("\nLa fecha inicial no puede ser mayor que la fecha final. Ingrese fechas válidas.")
-        except ValueError:
-            print("\nIngrese una fecha final válida en formato dd/mm/aaaa.")
-            continue
-
-
-
+    
 ##AQUI ME QUEDE SEGUIR MODIFICANDO
 
      
