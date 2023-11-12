@@ -660,7 +660,7 @@ def notas_ordenadoPeriodo():
                 SELECT N.FOLIO, strftime('%d/%m/%Y', N.FECHA) AS 'FECHA', C.NOMBRE, N.MONTO_A_PAGAR
                 FROM NOTAS N
                 JOIN CLIENTES C ON N.CLAVE_CLIENTE = C.CLAVE_CLIENTE
-                WHERE N.FECHA BETWEEN ? AND ?
+                WHERE (N.FECHA BETWEEN ? AND ?) AND N.ESTADO_NOTA = 1
                 ORDER BY N.FECHA
             """, (fecha_inicial, fecha_fin))
             registros = mi_cursor.fetchall()
